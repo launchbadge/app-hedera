@@ -6,6 +6,14 @@ char* hedera_format_tinybar(uint64_t tinybar) {
     return hedera_format_amount(tinybar, 8);
 }
 
+char* hedera_format_tinybar(uint64_t tinybar, uint64_t decimals) {
+    return hedera_format_amount(tinybar, 8);
+}
+
+char* hedera_format_tinybar(uint64_t tinybar, uint32_t decimals) {
+  return hedera_format_amount(tinybar, 8);
+}
+
 #define BUF_SIZE 32
 
 char* hedera_format_amount(uint64_t amount, uint8_t decimals) {

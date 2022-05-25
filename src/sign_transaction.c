@@ -1216,7 +1216,7 @@ void handle_transaction_body() {
                     "%s hbar",
                     hedera_format_tinybar(ctx.transaction.data.cryptoTransfer.transfers.accountAmounts[ctx.transfer_to_index].amount)
                 );
-            } else if ( ctx.transaction.data.cryptoTransfer.tokenTransfers_count == 1) {
+            } else if (ctx.transaction.data.cryptoTransfer.tokenTransfers_count == 1) {
                 ctx.type = TokenTransfer;
 
                 hedera_snprintf(
