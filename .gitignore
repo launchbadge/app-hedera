@@ -11,5 +11,4 @@ src/pb_*
 *.pyc
 
 # Tests
-tests/elfs/
 tests/snapshots-tmp/

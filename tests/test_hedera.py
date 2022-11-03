@@ -35,6 +35,9 @@ def test_hedera_get_public_key_ok(backend, firmware, navigator, test_name):
             elif backend.firmware.device.startswith("nano"):
                 nav_ins = [NavInsID.RIGHT_CLICK,
                            NavInsID.BOTH_CLICK]
+            else:
+                nav_ins = [NavInsID.USE_CASE_CHOICE_CONFIRM,
+                           NavInsID.USE_CASE_ADDRESS_CONFIRMATION_CONFIRM]
             navigator.navigate_and_compare(ROOT_SCREENSHOT_PATH, test_name + "_" + str(i), nav_ins)
 
         from_public_key = hedera.get_async_response().data
@@ -50,11 +53,23 @@ def test_hedera_get_public_key_refused(backend, firmware, navigator, test_name):
             nav_ins = [NavInsID.RIGHT_CLICK,
                        NavInsID.RIGHT_CLICK,
                        NavInsID.BOTH_CLICK]
+        else:
+            nav_ins = [NavInsID.USE_CASE_CHOICE_REJECT]
         backend.raise_policy = RaisePolicy.RAISE_NOTHING
         navigator.navigate_and_compare(ROOT_SCREENSHOT_PATH, test_name, nav_ins)
 
     rapdu = hedera.get_async_response()
     assert rapdu.status == ErrorType.EXCEPTION_USER_REJECTED
+
+    if firmware.device == "stax":
+        with hedera.get_public_key_confirm(0):
+            backend.raise_policy = RaisePolicy.RAISE_NOTHING
+            nav_ins = [NavInsID.USE_CASE_CHOICE_CONFIRM,
+                       NavInsID.USE_CASE_ADDRESS_CONFIRMATION_CANCEL]
+            navigator.navigate_and_compare(ROOT_SCREENSHOT_PATH, test_name + "_2", nav_ins)
+
+        rapdu = hedera.get_async_response()
+        assert rapdu.status == ErrorType.EXCEPTION_USER_REJECTED
 
 
 def test_hedera_crypto_create_account_ok(backend, firmware, navigator, test_name):

@@ -92,8 +92,15 @@ static void validate_memo(const char memo[ 100 ]) {
     hedera_snprintf(element, sizeof(element) - 1, __VA_ARGS__)
 
 void reformat_key(void) {
-    hedera_safe_printf(st_ctx.summary_line_2, "with Key #%u?",
-                       st_ctx.key_index);
+    hedera_safe_printf(
+        st_ctx.summary_line_2,
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2) || defined(TARGET_NANOS)
+        "with Key #%u?",
+#elif defined(TARGET_STAX)
+        "#%u",
+#endif
+        st_ctx.key_index
+    );
 }
 
 // SUMMARIES
@@ -125,7 +132,7 @@ static void set_title(const char *title) {
 static void set_senders_title(const char *title) {
 #if defined(TARGET_NANOS)
     set_title(title);
-#elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+#elif defined(TARGET_NANOX) || defined(TARGET_NANOS2) || defined(TARGET_STAX)
     // st_ctx.senders_title --> st_ctx.title (NANOS)
     hedera_safe_printf(st_ctx.senders_title, "%s", title);
 #endif
@@ -134,7 +141,7 @@ static void set_senders_title(const char *title) {
 static void set_recipients_title(const char *title) {
 #if defined(TARGET_NANOS)
     set_title(title);
-#elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+#elif defined(TARGET_NANOX) || defined(TARGET_NANOS2) || defined(TARGET_STAX)
     // st_ctx.recipients_title --> st_ctx.title (NANOS)
     hedera_safe_printf(st_ctx.recipients_title, "%s", title);
 #endif
@@ -143,7 +150,7 @@ static void set_recipients_title(const char *title) {
 static void set_amount_title(const char *title) {
 #if defined(TARGET_NANOS)
     set_title(title);
-#elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+#elif defined(TARGET_NANOX) || defined(TARGET_NANOS2) || defined(TARGET_STAX)
     // st_ctx.senders_title --> st_ctx.title (NANOS)
     hedera_safe_printf(st_ctx.amount_title, "%s", title);
 #endif

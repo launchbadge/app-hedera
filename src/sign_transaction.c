@@ -67,7 +67,7 @@ void handle_transaction_body() {
 #if defined(TARGET_NANOS)
     MEMCLEAR(st_ctx.full);
     MEMCLEAR(st_ctx.partial);
-#elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+#elif defined(TARGET_NANOX) || defined(TARGET_NANOS2) || defined(TARGET_STAX)
     MEMCLEAR(st_ctx.amount_title);
     MEMCLEAR(st_ctx.senders_title);
     MEMCLEAR(st_ctx.operator);
@@ -90,7 +90,7 @@ void handle_transaction_body() {
     // with Key #X?
     reformat_key();
 
-#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2) || defined(TARGET_STAX)
     // All flows except Verify
     if (!is_verify_account()) reformat_operator();
 #endif
@@ -101,7 +101,7 @@ void handle_transaction_body() {
             st_ctx.type = Create;
             reformat_summary("Create Account");
 
-#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2) || defined(TARGET_STAX)
             reformat_stake_target();
             reformat_collect_rewards();
             reformat_amount_balance();
@@ -112,7 +112,7 @@ void handle_transaction_body() {
             st_ctx.type = Update;
             reformat_summary("Update Account");
 
-#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2) || defined(TARGET_STAX)
             reformat_stake_target();
             reformat_collect_rewards();
             reformat_updated_account();
@@ -123,7 +123,7 @@ void handle_transaction_body() {
             st_ctx.type = Associate;
             reformat_summary("Associate Token");
 
-#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2) || defined(TARGET_STAX)
             reformat_token_associate();
 #endif
             break;
@@ -132,7 +132,7 @@ void handle_transaction_body() {
             st_ctx.type = Dissociate;
             reformat_summary("Dissociate Token");
 
-#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2) || defined(TARGET_STAX)
             reformat_token_dissociate();
 #endif
             break;
@@ -141,7 +141,7 @@ void handle_transaction_body() {
             st_ctx.type = TokenBurn;
             reformat_summary("Burn Token");
 
-#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2) || defined(TARGET_STAX)
             reformat_token_burn();
             reformat_amount_burn();
 #endif
@@ -151,7 +151,7 @@ void handle_transaction_body() {
             st_ctx.type = TokenMint;
             reformat_summary("Mint Token");
 
-#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2) || defined(TARGET_STAX)
             reformat_token_mint();
             reformat_amount_mint();
 #endif
@@ -164,7 +164,7 @@ void handle_transaction_body() {
                 st_ctx.type = Verify;
                 reformat_summary("Verify Account");
 
-#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2) || defined(TARGET_STAX)
                 reformat_verify_account();
 #endif
 
@@ -183,7 +183,7 @@ void handle_transaction_body() {
                     st_ctx.transfer_to_index = 0;
                 }
 
-#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2) || defined(TARGET_STAX)
                 reformat_sender_account();
                 reformat_recipient_account();
                 reformat_amount_transfer();
@@ -203,7 +203,7 @@ void handle_transaction_body() {
                     st_ctx.transfer_to_index = 0;
                 }
 
-#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2) || defined(TARGET_STAX)
                 reformat_token_sender_account();
                 reformat_token_recipient_account();
                 reformat_token_transfer();
@@ -221,7 +221,7 @@ void handle_transaction_body() {
             break;
     }
 
-#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2) || defined(TARGET_STAX)
     // All flows except Verify
     if (!is_verify_account()) {
         reformat_fee();

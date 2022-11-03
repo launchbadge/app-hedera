@@ -1,4 +1,10 @@
 #include "io.h"
+#include "ux.h"
+
+#ifdef HAVE_NBGL
+#include "nbgl_touch.h"
+#include "nbgl_page.h"
+#endif  // HAVE_NBGL
 
 // Everything below this point is Ledger magic. And the magic isn't well-
 // documented, so if you want to understand it, you'll need to read the
@@ -7,9 +13,11 @@
 
 unsigned char G_io_seproxyhal_spi_buffer[ IO_SEPROXYHAL_BUFFER_SIZE_B ];
 
+#ifdef HAVE_BAGL
 void io_seproxyhal_display(const bagl_element_t *element) {
     io_seproxyhal_display_default((bagl_element_t *)element);
 }
+#endif //HAVE_BAGL
 
 unsigned char io_event(unsigned char channel) {
     UNUSED(channel);
@@ -24,7 +32,9 @@ unsigned char io_event(unsigned char channel) {
             break;
 
         case SEPROXYHAL_TAG_BUTTON_PUSH_EVENT:
+#ifdef HAVE_BAGL
             UX_BUTTON_PUSH_EVENT(G_io_seproxyhal_spi_buffer);
+#endif  // HAVE_BAGL
             break;
 
         case SEPROXYHAL_TAG_STATUS_EVENT:
@@ -33,12 +43,14 @@ unsigned char io_event(unsigned char channel) {
                   SEPROXYHAL_TAG_STATUS_EVENT_FLAG_USB_POWERED)) {
                 THROW(EXCEPTION_IO_RESET);
             }
-
-            UX_DEFAULT_EVENT();
-            break;
-
+            /* fallthrough */
         case SEPROXYHAL_TAG_DISPLAY_PROCESSED_EVENT:
+#ifdef HAVE_BAGL
             UX_DISPLAYED_EVENT({});
+#endif  // HAVE_BAGL
+#ifdef HAVE_NBGL
+            UX_DEFAULT_EVENT();
+#endif  // HAVE_NBGL
             break;
 
         case SEPROXYHAL_TAG_TICKER_EVENT:

@@ -1,7 +1,13 @@
+#include "ux.h"
 #include "glyphs.h"
 #include "globals.h"
 #include "handlers.h"
 #include "ui_common.h"
+
+#ifdef TARGET_STAX
+#include "nbgl_touch.h"
+#include "nbgl_page.h"
+#endif  // TARGET_STAX
 
 // This is the main loop that reads and writes APDUs. It receives request
 // APDUs from the computer, looks up the corresponding command handler, and
@@ -13,6 +19,15 @@
 
 // Things are marked volatile throughout the app to prevent unintended compiler
 // reording of instructions (since the try-catch system is a macro)
+
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2) || defined(TARGET_STAX)
+ux_state_t G_ux;
+bolos_ux_params_t G_ux_params;
+#endif
+
+#if defined (TARGET_STAX)
+nbgl_page_t *pageContext;
+#endif
 
 void app_main() {
     volatile unsigned int rx = 0;
@@ -120,7 +135,12 @@ __attribute__((section(".boot"))) int main() {
 
     for (;;) {
         // Initialize the UX system
+#ifdef HAVE_BAGL
         UX_INIT();
+#endif  // HAVE_BAGL
+#ifdef TARGET_STAX
+        nbgl_objInit();
+#endif  // TARGET_STAX
 
         BEGIN_TRY {
             TRY {
