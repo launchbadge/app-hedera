@@ -1,5 +1,3 @@
 syntax = "proto3";
 
-message HederaCryptoCreateTransactionBody {
-    uint64 initialBalance = 2;
-}
+message HederaCryptoCreateTransactionBody { uint64 initialBalance = 2; }
