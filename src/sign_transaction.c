@@ -108,6 +108,17 @@ void handle_transaction_body() {
 #endif
             break;
 
+        case Hedera_TransactionBody_cryptoUpdateAccount_tag:
+            st_ctx.type = Update;
+            reformat_summary("Update Account");
+
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+            reformat_stake_target();
+            reformat_collect_rewards();
+            reformat_updated_account();
+#endif
+            break;
+
         case Hedera_TransactionBody_tokenAssociate_tag:
             st_ctx.type = Associate;
             reformat_summary("Associate Token");

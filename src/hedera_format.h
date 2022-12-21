@@ -19,6 +19,8 @@ void reformat_amount_balance(void);
 
 void reformat_token_associate(void);
 
+void reformat_token_dissociate(void);
+
 void reformat_token_burn(void);
 
 void reformat_token_mint(void);
@@ -36,6 +38,8 @@ void reformat_recipient_account(void);
 void reformat_token_sender_account(void);
 
 void reformat_token_recipient_account(void);
+
+void reformat_updated_account(void);
 
 void reformat_amount_transfer(void);
 

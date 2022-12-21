@@ -3,6 +3,7 @@ from typing import Dict
 from proto import transaction_body_pb2
 from proto import basic_types_pb2
 from proto import crypto_create_pb2
+from proto import crypto_update_pb2
 from proto import token_associate_pb2
 from proto import token_dissociate_pb2
 from proto import crypto_transfer_pb2
@@ -64,6 +65,40 @@ def crypto_create_account_conf(
         )
 
     return {"cryptoCreateAccount": crypto_create_account}
+
+
+def crypto_update_account_conf(
+    declineRewards: bool = None,
+    stakeTargetAccount: int = None,
+    stakeTargetNode: int = None,
+    targetShardNum: int = 0,
+    targetRealmNum: int = 0,
+    targetAccountNum: int = 666,
+) -> Dict:
+    account_id = basic_types_pb2.AccountID(
+        shardNum=targetShardNum, realmNum=targetRealmNum, accountNum=targetAccountNum
+    )
+    decline = wrappers_pb2.BoolValue(value=declineRewards)
+    crypto_update_account = crypto_update_pb2.CryptoUpdateTransactionBody(
+        accountIDToUpdate=account_id, decline_reward=decline
+    )
+
+    if stakeTargetAccount:
+        stake_account_id = basic_types_pb2.AccountID(accountNum=stakeTargetAccount)
+        crypto_update_account = crypto_update_pb2.CryptoUpdateTransactionBody(
+            accountIDToUpdate=account_id,
+            staked_account_id=stake_account_id,
+            decline_reward=decline,
+        )
+
+    if stakeTargetNode:
+        crypto_update_account = crypto_update_pb2.CryptoUpdateTransactionBody(
+            accountIDToUpdate=account_id,
+            staked_node_id=stakeTargetNode,
+            decline_reward=decline,
+        )
+
+    return {"cryptoUpdateAccount": crypto_update_account}
 
 
 def crypto_transfer_token_conf(

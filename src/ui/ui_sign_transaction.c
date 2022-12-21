@@ -40,6 +40,7 @@ static void reformat_senders(void) {
             break;
 
         case Create:
+        case Update:
             reformat_stake_target();
             break;
 
@@ -75,6 +76,7 @@ static void reformat_senders(void) {
 static void reformat_recipients(void) {
     switch (st_ctx.type) {
         case Create:
+        case Update:
             reformat_collect_rewards();
             break;
 
@@ -95,6 +97,10 @@ static void reformat_amount(void) {
     switch (st_ctx.type) {
         case Create:
             reformat_amount_balance();
+            break;
+
+        case Update:
+            reformat_updated_account();
             break;
 
         case Transfer:
@@ -252,7 +258,7 @@ void handle_intermediate_left_press() {
             UX_REDISPLAY();
         } break;
 
-        // Create, Transfer return to Senders
+        // Create, Update, Transfer return to Senders
         // Other flows do not have Recipients
         case Recipients: {
             if (first_screen()) {
@@ -270,13 +276,14 @@ void handle_intermediate_left_press() {
             UX_REDISPLAY();
         } break;
 
-        // Create, Transfer return to Recipients
+        // Create, Update, Transfer return to Recipients
         // Mint, Burn return to Senders
         // Other flows do not have Amount
         case Amount: {
             if (first_screen()) {
                 if (st_ctx.type == Transfer || st_ctx.type == TokenTransfer ||
-                    st_ctx.type == Create) { // Return to Recipients
+                    st_ctx.type == Create ||
+                    st_ctx.type == Update) { // Return to Recipients
                     st_ctx.step = Recipients;
                     st_ctx.display_index = 1;
                     update_display_count();
@@ -299,7 +306,7 @@ void handle_intermediate_left_press() {
             UX_REDISPLAY();
         } break;
 
-        // Create, Transfer, Mint, Burn return to Amount
+        // Create, Update, Transfer, Mint, Burn return to Amount
         // Associate, Dissociate return to Senders
         case Fee: {
             if (first_screen()) { // Return to Senders
@@ -372,7 +379,7 @@ void handle_intermediate_right_press() {
 
         // Verify continues to Confirm
         // Mint, Burn continue to Amount
-        // Create, Transfer continue to Recipients
+        // Create, Update, Transfer continue to Recipients
         // Associate, Dissociate continues to Fee
         case Senders: {
             if (last_screen()) {
@@ -387,8 +394,8 @@ void handle_intermediate_right_press() {
                     reformat_amount();
                     shift_display();
                 } else if (st_ctx.type == Create || st_ctx.type == Transfer ||
-                           st_ctx.type ==
-                               TokenTransfer) { // Continue to Recipients
+                           st_ctx.type == TokenTransfer ||
+                           st_ctx.type == Update) { // Continue to Recipients
                     st_ctx.step = Recipients;
                     st_ctx.display_index = 1;
                     update_display_count();
@@ -652,6 +659,7 @@ void ui_sign_transaction(void) {
             ux_flow_init(0, ux_verify_flow, NULL);
             break;
         case Create:
+        case Update:
         case TokenTransfer:
         case Transfer:
             ux_flow_init(0, ux_transfer_flow, NULL);

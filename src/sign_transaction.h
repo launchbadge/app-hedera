@@ -7,6 +7,7 @@
 #include <stdint.h>
 
 #include "crypto_create.pb.h"
+#include "crypto_update.pb.h"
 #include "handlers.h"
 #include "hedera.h"
 #include "hedera_format.h"
@@ -31,12 +32,13 @@ enum TransactionType {
     Unknown = -1,
     Verify = 0,
     Create = 1,
-    Transfer = 2,
-    Associate = 3,
-    Dissociate = 4,
-    TokenTransfer = 5,
-    TokenMint = 6,
-    TokenBurn = 7,
+    Update = 2,
+    Transfer = 3,
+    Associate = 4,
+    Dissociate = 5,
+    TokenTransfer = 6,
+    TokenMint = 7,
+    TokenBurn = 8,
 };
 
 /*
@@ -52,6 +54,11 @@ enum TransactionType {
 (Senders)
  * <--> "Collect Rewards? Yes / No" (Recipients) <--> "Initial Balance" (Amount)
  * <--> Fee <--> Memo <--> Confirm <--> Deny
+ *
+ * Update:
+ * "Update Account 0.0.0 with Key #0?" (Summary) <--> Operator <-->
+ * "Stake to" (Senders) <--> "Collect Rewards (Yes / No)" (Recipients) <-->
+ * "Updated Account" (Amount) <--> Fee <--> Memo <--> Confirm <--> Deny
  *
  * Transfer:
  * "Transfer with Key #0?" (Summary) <--> Operator <--> Senders <--> Recipients

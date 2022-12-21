@@ -2,6 +2,7 @@ from ragger.backend.interface import RaisePolicy
 
 from .apps.hedera import HederaClient, ErrorType
 from .apps.hedera_builder import crypto_create_account_conf
+from .apps.hedera_builder import crypto_update_account_conf
 from .apps.hedera_builder import crypto_transfer_token_conf
 from .apps.hedera_builder import crypto_transfer_hbar_conf
 from .apps.hedera_builder import crypto_transfer_verify
@@ -142,6 +143,136 @@ def test_hedera_crypto_create_account_stake_node_refused(client, firmware):
     hedera = HederaClient(client)
     conf = crypto_create_account_conf(
         initialBalance=5, stakeTargetNode=3, declineRewards=False
+    )
+    with hedera.send_sign_transaction(
+        index=0,
+        operator_shard_num=1,
+        operator_realm_num=2,
+        operator_account_num=3,
+        transaction_fee=5,
+        memo="this_is_the_memo",
+        conf=conf,
+    ):
+        client.raise_policy = RaisePolicy.RAISE_NOTHING
+        hedera.validate_screen(8)
+
+    rapdu = hedera.get_async_response()
+    assert rapdu.status == ErrorType.EXCEPTION_USER_REJECTED
+
+
+def test_hedera_crypto_update_account_ok(client, firmware):
+    hedera = HederaClient(client)
+    conf = crypto_update_account_conf(
+        targetShardNum=6, targetRealmNum=54, targetAccountNum=6789
+    )
+    with hedera.send_sign_transaction(
+        index=0,
+        operator_shard_num=1,
+        operator_realm_num=2,
+        operator_account_num=3,
+        transaction_fee=5,
+        memo="this_is_the_memo",
+        conf=conf,
+    ):
+        hedera.validate_screen(7)
+
+
+def test_hedera_crypto_update_account_refused(client, firmware):
+    hedera = HederaClient(client)
+    conf = crypto_update_account_conf(
+        targetShardNum=6, targetRealmNum=54, targetAccountNum=6789
+    )
+    with hedera.send_sign_transaction(
+        index=0,
+        operator_shard_num=1,
+        operator_realm_num=2,
+        operator_account_num=3,
+        transaction_fee=5,
+        memo="this_is_the_memo",
+        conf=conf,
+    ):
+        client.raise_policy = RaisePolicy.RAISE_NOTHING
+        hedera.validate_screen(8)
+
+    rapdu = hedera.get_async_response()
+    assert rapdu.status == ErrorType.EXCEPTION_USER_REJECTED
+
+
+def test_hedera_crypto_update_account_stake_account(client, firmware):
+    hedera = HederaClient(client)
+    conf = crypto_update_account_conf(
+        targetShardNum=8,
+        targetRealmNum=901,
+        targetAccountNum=7,
+        stakeTargetAccount=666,
+        declineRewards=True,
+    )
+    with hedera.send_sign_transaction(
+        index=0,
+        operator_shard_num=1,
+        operator_realm_num=2,
+        operator_account_num=3,
+        transaction_fee=5,
+        memo="this_is_the_memo",
+        conf=conf,
+    ):
+        hedera.validate_screen(7)
+
+
+def test_hedera_crypto_update_account_stake_account_refused(client, firmware):
+    hedera = HederaClient(client)
+    conf = crypto_update_account_conf(
+        targetShardNum=8,
+        targetRealmNum=901,
+        targetAccountNum=7,
+        stakeTargetAccount=777,
+        declineRewards=False,
+    )
+    with hedera.send_sign_transaction(
+        index=0,
+        operator_shard_num=1,
+        operator_realm_num=2,
+        operator_account_num=3,
+        transaction_fee=5,
+        memo="this_is_the_memo",
+        conf=conf,
+    ):
+        client.raise_policy = RaisePolicy.RAISE_NOTHING
+        hedera.validate_screen(8)
+
+    rapdu = hedera.get_async_response()
+    assert rapdu.status == ErrorType.EXCEPTION_USER_REJECTED
+
+
+def test_hedera_crypto_update_account_stake_node(client, firmware):
+    hedera = HederaClient(client)
+    conf = crypto_update_account_conf(
+        targetShardNum=87,
+        targetRealmNum=4,
+        targetAccountNum=343434,
+        stakeTargetNode=4,
+        declineRewards=True,
+    )
+    with hedera.send_sign_transaction(
+        index=0,
+        operator_shard_num=1,
+        operator_realm_num=2,
+        operator_account_num=3,
+        transaction_fee=5,
+        memo="this_is_the_memo",
+        conf=conf,
+    ):
+        hedera.validate_screen(7)
+
+
+def test_hedera_crypto_update_account_stake_node_refused(client, firmware):
+    hedera = HederaClient(client)
+    conf = crypto_update_account_conf(
+        targetShardNum=87,
+        targetRealmNum=4,
+        targetAccountNum=343434,
+        stakeTargetNode=3,
+        declineRewards=False,
     )
     with hedera.send_sign_transaction(
         index=0,
