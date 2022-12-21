@@ -36,10 +36,31 @@ def hedera_transaction(
     return transaction.SerializeToString()
 
 
-def crypto_create_account_conf(initialBalance: int) -> Dict:
+def crypto_create_account_conf(
+    initialBalance: int,
+    stakeTargetAccount: int = None,
+    stakeTargetNode: int = None,
+    declineRewards: bool = False,
+) -> Dict:
     crypto_create_account = crypto_create_pb2.CryptoCreateTransactionBody(
-        initialBalance=initialBalance,
+        initialBalance=initialBalance
     )
+
+    if stakeTargetAccount:
+        account_id = basic_types_pb2.AccountID(
+            shardNum=0, realmNum=0, accountNum=stakeTargetAccount
+        )
+        crypto_create_account = crypto_create_pb2.CryptoCreateTransactionBody(
+            initialBalance=initialBalance,
+            staked_account_id=account_id,
+            decline_reward=declineRewards,
+        )
+    elif stakeTargetNode:
+        crypto_create_account = crypto_create_pb2.CryptoCreateTransactionBody(
+            initialBalance=initialBalance,
+            staked_node_id=stakeTargetNode,
+            decline_reward=declineRewards,
+        )
 
     return {"cryptoCreateAccount": crypto_create_account}
 

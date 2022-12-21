@@ -6,6 +6,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "crypto_create.pb.h"
 #include "handlers.h"
 #include "hedera.h"
 #include "hedera_format.h"
@@ -37,6 +38,41 @@ enum TransactionType {
     TokenBurn = 6,
 };
 
+/*
+ * Supported Transactions:
+ * // TODO: Refactor this into a generic dispatch
+ *
+ * Verify:
+ * "Verify Account with Key #0?" (Summary) <--> "Account" (Senders) <--> Confirm
+ * <--> Deny
+ *
+ * Create:
+ * "Create Account with Key #0?" (Summary) <--> Operator <--> "Stake to"
+(Senders)
+ * <--> "Collect Rewards? Yes / No" (Recipients) <--> "Initial Balance" (Amount)
+ * <--> Fee <--> Memo <--> Confirm <--> Deny
+ *
+ * Transfer:
+ * "Transfer with Key #0?" (Summary) <--> Operator <--> Senders <--> Recipients
+ * <--> Amount <--> Fee <--> Memo <--> Confirm <--> Deny
+ *
+ * Associate:
+ * "Associate Token with Key #0?" (Summary) <--> Operator <--> "Token" (Senders)
+ * <--> Fee <--> Memo <--> Confirm <--> Deny
+ *
+ * TokenMint:
+ * "Mint Token with Key #0?" (Summary) <--> Operator <--> "Token" (Senders) <-->
+ * Amount <--> Fee <--> Memo <--> Confirm <--> Deny
+ *
+ * TokenBurn:
+ * "Burn Token with Key #0?" (Summary) <--> Operator <--> "Token" (Senders) <-->
+ * Amount <--> Fee <--> Memo <--> Confirm <--> Deny
+ *
+ * I chose the steps for the originally supported CreateAccount and Transfer
+transactions, and the additional transactions have been added since then. Steps
+may be skipped or modified (as described above) from the original transfer flow.
+ */
+
 typedef struct sign_tx_context_s {
     // ui common
     uint32_t key_index;
@@ -51,11 +87,13 @@ typedef struct sign_tx_context_s {
     union {
 #define TITLE_SIZE (DISPLAY_SIZE + 1)
         char title[ TITLE_SIZE ];
-        char senders_title[ TITLE_SIZE ]; // alias for title
-        char amount_title[ TITLE_SIZE ];  // alias for title
+        char senders_title[ TITLE_SIZE ];    // alias for title
+        char recipients_title[ TITLE_SIZE ]; // alias for title
+        char amount_title[ TITLE_SIZE ];     // alias for title
     };
 #elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
     char senders_title[ DISPLAY_SIZE + 1 ];
+    char recipients_title[ DISPLAY_SIZE + 1 ];
     char amount_title[ DISPLAY_SIZE + 1 ];
 #endif
 

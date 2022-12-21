@@ -17,6 +17,10 @@ static uint8_t num_screens(size_t length) {
     return screens;
 }
 
+bool first_screen() { return st_ctx.display_index == 1; }
+
+bool last_screen() { return st_ctx.display_index == st_ctx.display_count; }
+
 static void update_display_count(void) {
     st_ctx.display_count = num_screens(strlen(st_ctx.full));
 }
@@ -35,6 +39,10 @@ static void reformat_senders(void) {
             reformat_verify_account();
             break;
 
+        case Create:
+            reformat_stake_target();
+            break;
+
         case Associate:
             reformat_token_associate();
             break;
@@ -48,7 +56,7 @@ static void reformat_senders(void) {
             break;
 
         case TokenTransfer:
-            reformat_tokens_account_sender();
+            reformat_token_sender_account();
             break;
 
         case Transfer:
@@ -62,8 +70,12 @@ static void reformat_senders(void) {
 
 static void reformat_recipients(void) {
     switch (st_ctx.type) {
+        case Create:
+            reformat_collect_rewards();
+            break;
+
         case TokenTransfer:
-            reformat_tokens_account_recipient();
+            reformat_token_recipient_account();
             break;
 
         case Transfer:
@@ -94,7 +106,7 @@ static void reformat_amount(void) {
             break;
 
         case TokenTransfer:
-            reformat_token_tranfer();
+            reformat_token_transfer();
             break;
 
         default:
@@ -174,14 +186,13 @@ unsigned int ui_tx_summary_step_button(unsigned int button_mask,
                                        button_mask_counter) {
     switch (button_mask) {
         case BUTTON_EVT_RELEASED | BUTTON_RIGHT:
-            if (st_ctx.type == Verify || st_ctx.type == Associate ||
-                st_ctx.type == TokenMint || st_ctx.type == TokenBurn) {
+            if (st_ctx.type == Verify) { // Verify skips to Senders
                 st_ctx.step = Senders;
                 st_ctx.display_index = 1;
                 update_display_count();
                 reformat_senders();
                 shift_display();
-            } else {
+            } else { // Other flows all go to Operator
                 st_ctx.step = Operator;
                 st_ctx.display_index = 1;
                 update_display_count();
@@ -195,15 +206,12 @@ unsigned int ui_tx_summary_step_button(unsigned int button_mask,
     return 0;
 }
 
-bool first_screen() { return st_ctx.display_index == 1; }
-
-bool last_screen() { return st_ctx.display_index == st_ctx.display_count; }
-
 void handle_intermediate_left_press() {
     // Navigate Left (scroll or return to previous step)
     switch (st_ctx.step) {
+        // All Flows with displayed Operator return to Summary
         case Operator: {
-            if (first_screen()) { // Return to Summary
+            if (first_screen()) {
                 st_ctx.step = Summary;
                 st_ctx.display_index = 1;
                 UX_DISPLAY(ui_tx_summary_step, NULL);
@@ -216,10 +224,11 @@ void handle_intermediate_left_press() {
             }
         } break;
 
+        // Verify returns to Sumamry
+        // All others return to Operator
         case Senders: {
-            if (first_screen()) { // Return to Operator
-                if (st_ctx.type == Verify || st_ctx.type == Associate ||
-                    st_ctx.type == TokenMint || st_ctx.type == TokenBurn) {
+            if (first_screen()) {
+                if (st_ctx.type == Verify) {
                     st_ctx.step = Summary;
                     st_ctx.display_index = 1;
                     UX_DISPLAY(ui_tx_summary_step, NULL);
@@ -239,8 +248,10 @@ void handle_intermediate_left_press() {
             UX_REDISPLAY();
         } break;
 
+        // Create, Transfer return to Senders
+        // Other flows do not have Recipients
         case Recipients: {
-            if (first_screen()) { // Return to Senders
+            if (first_screen()) {
                 st_ctx.step = Senders;
                 st_ctx.display_index = 1;
                 update_display_count();
@@ -255,17 +266,13 @@ void handle_intermediate_left_press() {
             UX_REDISPLAY();
         } break;
 
+        // Create, Transfer return to Recipients
+        // Mint, Burn return to Senders
+        // Other flows do not have Amount
         case Amount: {
             if (first_screen()) {
-                if (st_ctx.type == Create) { // Return to Operator
-                    st_ctx.step = Operator;
-                    st_ctx.display_index = 1;
-                    update_display_count();
-                    reformat_operator();
-                    shift_display();
-                } else if (st_ctx.type == Transfer ||
-                           st_ctx.type ==
-                               TokenTransfer) { // Return to Recipients
+                if (st_ctx.type == Transfer || st_ctx.type == TokenTransfer ||
+                    st_ctx.type == Create) { // Return to Recipients
                     st_ctx.step = Recipients;
                     st_ctx.display_index = 1;
                     update_display_count();
@@ -288,13 +295,23 @@ void handle_intermediate_left_press() {
             UX_REDISPLAY();
         } break;
 
+        // Create, Transfer, Mint, Burn return to Amount
+        // Associate returns to Senders
         case Fee: {
-            if (first_screen()) { // Return to Amount
-                st_ctx.step = Amount;
-                st_ctx.display_index = 1;
-                update_display_count();
-                reformat_amount();
-                shift_display();
+            if (first_screen()) { // Return to Senders
+                if (st_ctx.type == Associate) {
+                    st_ctx.step = Senders;
+                    st_ctx.display_index = 1;
+                    update_display_count();
+                    reformat_senders();
+                    shift_display();
+                } else { // Return to Amount
+                    st_ctx.step = Amount;
+                    st_ctx.display_index = 1;
+                    update_display_count();
+                    reformat_amount();
+                    shift_display();
+                }
             } else { // Scroll left
                 st_ctx.display_index--;
                 update_display_count();
@@ -304,6 +321,7 @@ void handle_intermediate_left_press() {
             UX_REDISPLAY();
         } break;
 
+        // All flows return to Fee from Memo
         case Memo: {
             if (first_screen()) { // Return to Fee
                 st_ctx.step = Fee;
@@ -323,7 +341,7 @@ void handle_intermediate_left_press() {
         case Summary:
         case Confirm:
         case Deny:
-            // ignore left button on Summary, Confirm, and Deny screens
+            // this handler does not apply to these steps
             break;
     }
 }
@@ -331,21 +349,14 @@ void handle_intermediate_left_press() {
 void handle_intermediate_right_press() {
     // Navigate Right (scroll or continue to next step)
     switch (st_ctx.step) {
+        // All flows proceed from Operator to Senders
         case Operator: {
-            if (last_screen()) {
-                if (st_ctx.type == Create) { // Continue to Amount
-                    st_ctx.step = Amount;
-                    st_ctx.display_index = 1;
-                    update_display_count();
-                    reformat_amount();
-                    shift_display();
-                } else { // Continue to Senders
-                    st_ctx.step = Senders;
-                    st_ctx.display_index = 1;
-                    update_display_count();
-                    reformat_senders();
-                    shift_display();
-                }
+            if (last_screen()) { // Continue to Senders
+                st_ctx.step = Senders;
+                st_ctx.display_index = 1;
+                update_display_count();
+                reformat_senders();
+                shift_display();
             } else { // Scroll Right
                 st_ctx.display_index++;
                 update_display_count();
@@ -355,24 +366,35 @@ void handle_intermediate_right_press() {
             UX_REDISPLAY();
         } break;
 
+        // Verify continues to Confirm
+        // Mint, Burn continue to Amount
+        // Create, Transfer continue to Recipients
+        // Associate continues to Fee
         case Senders: {
             if (last_screen()) {
-                if (st_ctx.type == Verify ||
-                    st_ctx.type == Associate) { // Continue to Confirm
+                if (st_ctx.type == Verify) { // Continue to Confirm
                     st_ctx.step = Confirm;
                     UX_DISPLAY(ui_tx_confirm_step, NULL);
                 } else if (st_ctx.type == TokenMint ||
-                           st_ctx.type == TokenBurn) {
+                           st_ctx.type == TokenBurn) { // Continue to Amount
                     st_ctx.step = Amount;
                     st_ctx.display_index = 1;
                     update_display_count();
                     reformat_amount();
                     shift_display();
-                } else { // Continue to Recipients
+                } else if (st_ctx.type == Create || st_ctx.type == Transfer ||
+                           st_ctx.type ==
+                               TokenTransfer) { // Continue to Recipients
                     st_ctx.step = Recipients;
                     st_ctx.display_index = 1;
                     update_display_count();
                     reformat_recipients();
+                    shift_display();
+                } else if (st_ctx.type == Associate) { // Continue to Fee
+                    st_ctx.step = Fee;
+                    st_ctx.display_index = 1;
+                    update_display_count();
+                    reformat_fee();
                     shift_display();
                 }
             } else { // Scroll Right
@@ -384,6 +406,7 @@ void handle_intermediate_right_press() {
             UX_REDISPLAY();
         } break;
 
+        // All flows with Recipients continue to Amount
         case Recipients: {
             if (last_screen()) { // Continue to Amount
                 st_ctx.step = Amount;
@@ -400,21 +423,14 @@ void handle_intermediate_right_press() {
             UX_REDISPLAY();
         } break;
 
+        // All flows with Amounts continue to Fee
         case Amount: {
-            if (last_screen()) {
-                if (st_ctx.type == TokenMint || st_ctx.type == TokenBurn) {
-                    // Continue to Confirm
-                    st_ctx.step = Confirm;
-                    st_ctx.display_index = 1;
-                    UX_DISPLAY(ui_tx_confirm_step, NULL);
-                } else {
-                    // Continue to Fee
-                    st_ctx.step = Fee;
-                    st_ctx.display_index = 1;
-                    update_display_count();
-                    reformat_fee();
-                    shift_display();
-                }
+            if (last_screen()) { // Continue to Fee
+                st_ctx.step = Fee;
+                st_ctx.display_index = 1;
+                update_display_count();
+                reformat_fee();
+                shift_display();
             } else { // Scroll Right
                 st_ctx.display_index++;
                 update_display_count();
@@ -424,6 +440,7 @@ void handle_intermediate_right_press() {
             UX_REDISPLAY();
         } break;
 
+        // Always to Memo
         case Fee: {
             if (last_screen()) { // Continue to Memo
                 st_ctx.step = Memo;
@@ -440,6 +457,7 @@ void handle_intermediate_right_press() {
             UX_REDISPLAY();
         } break;
 
+        // Always to Confirm
         case Memo: {
             if (last_screen()) { // Continue to Confirm
                 st_ctx.step = Confirm;
@@ -457,7 +475,7 @@ void handle_intermediate_right_press() {
         case Summary:
         case Confirm:
         case Deny:
-            // ignore left button on Summary, Confirm, and Deny screens
+            // this handler does not apply to these steps
             break;
     }
 }
@@ -488,19 +506,11 @@ unsigned int ui_tx_confirm_step_button(unsigned int button_mask,
                                        button_mask_counter) {
     switch (button_mask) {
         case BUTTON_EVT_RELEASED | BUTTON_LEFT:
-            if (st_ctx.type == Verify ||
-                st_ctx.type == Associate) { // Return to Senders
+            if (st_ctx.type == Verify) { // Return to Senders
                 st_ctx.step = Senders;
                 st_ctx.display_index = 1;
                 update_display_count();
                 reformat_senders();
-                shift_display();
-            } else if (st_ctx.type == TokenMint ||
-                       st_ctx.type == TokenBurn) { // Return to Amount
-                st_ctx.step = Amount;
-                st_ctx.display_index = 1;
-                update_display_count();
-                reformat_amount();
                 shift_display();
             } else { // Return to Memo
                 st_ctx.step = Memo;
@@ -566,12 +576,11 @@ unsigned int io_seproxyhal_tx_reject(const bagl_element_t* e) {
     return 0;
 }
 
-UX_STEP_NOCB(ux_tx_flow_1_step, bnn,
-             {"Transaction Summary", st_ctx.summary_line_1,
-              st_ctx.summary_line_2});
+UX_STEP_NOCB(summary_step, bnn,
+             {"Summary", st_ctx.summary_line_1, st_ctx.summary_line_2});
 
 UX_STEP_NOCB(
-    ux_tx_flow_2_step,
+    operator_step,
     bnnn_paging,
     {
         .title = "Operator",
@@ -579,47 +588,46 @@ UX_STEP_NOCB(
     }
 );
 
-UX_STEP_NOCB(ux_tx_flow_3_step, bnnn_paging,
+UX_STEP_NOCB(senders_step, bnnn_paging,
              {.title = (char*)st_ctx.senders_title,
               .text = (char*)st_ctx.senders});
 
-UX_STEP_NOCB(ux_tx_flow_4_step, bnnn_paging,
-             {.title = "Recipient", .text = (char*)st_ctx.recipients});
+UX_STEP_NOCB(recipients_step, bnnn_paging,
+             {.title = (char*)st_ctx.recipients_title,
+              .text = (char*)st_ctx.recipients});
 
-UX_STEP_NOCB(ux_tx_flow_5_step, bnnn_paging,
+UX_STEP_NOCB(amount_step, bnnn_paging,
              {.title = (char*)st_ctx.amount_title,
               .text = (char*)st_ctx.amount});
 
-UX_STEP_NOCB(ux_tx_flow_6_step, bnnn_paging,
+UX_STEP_NOCB(fee_step, bnnn_paging,
              {.title = "Max Fee", .text = (char*)st_ctx.fee});
 
-UX_STEP_NOCB(ux_tx_flow_7_step, bnnn_paging,
+UX_STEP_NOCB(memo_step, bnnn_paging,
              {.title = "Memo", .text = (char*)st_ctx.memo});
 
-UX_STEP_VALID(ux_tx_flow_8_step, pb, io_seproxyhal_tx_approve(NULL),
+UX_STEP_VALID(confirm_step, pb, io_seproxyhal_tx_approve(NULL),
               {&C_icon_validate_14, "Confirm"});
 
-UX_STEP_VALID(ux_tx_flow_9_step, pb, io_seproxyhal_tx_reject(NULL),
+UX_STEP_VALID(reject_step, pb, io_seproxyhal_tx_reject(NULL),
               {&C_icon_crossmark, "Reject"});
 
 // Transfer UX Flow
-UX_DEF(ux_transfer_flow, &ux_tx_flow_1_step, &ux_tx_flow_2_step,
-       &ux_tx_flow_3_step, &ux_tx_flow_4_step, &ux_tx_flow_5_step,
-       &ux_tx_flow_6_step, &ux_tx_flow_7_step, &ux_tx_flow_8_step,
-       &ux_tx_flow_9_step);
-
-// Create UX Flow
-UX_DEF(ux_create_flow, &ux_tx_flow_1_step, &ux_tx_flow_2_step,
-       &ux_tx_flow_5_step, &ux_tx_flow_6_step, &ux_tx_flow_7_step,
-       &ux_tx_flow_8_step, &ux_tx_flow_9_step);
+UX_DEF(ux_transfer_flow, &summary_step, &operator_step, &senders_step,
+       &recipients_step, &amount_step, &fee_step, &memo_step, &confirm_step,
+       &reject_step);
 
 // Verify UX Flow
-UX_DEF(ux_verify_flow, &ux_tx_flow_1_step, &ux_tx_flow_3_step,
-       &ux_tx_flow_8_step, &ux_tx_flow_9_step);
+UX_DEF(ux_verify_flow, &summary_step, &senders_step, &confirm_step,
+       &reject_step);
 
 // Burn/Mint UX Flow
-UX_DEF(ux_burn_mint_flow, &ux_tx_flow_1_step, &ux_tx_flow_3_step,
-       &ux_tx_flow_5_step, &ux_tx_flow_8_step, &ux_tx_flow_9_step);
+UX_DEF(ux_burn_mint_flow, &summary_step, &operator_step, &senders_step,
+       &amount_step, &fee_step, &memo_step, &confirm_step, &reject_step);
+
+// Associate UX Flow
+UX_DEF(ux_associate_flow, &summary_step, &operator_step, &senders_step,
+       &fee_step, &memo_step, &confirm_step, &reject_step);
 
 #endif
 
@@ -632,12 +640,12 @@ void ui_sign_transaction(void) {
 
     switch (st_ctx.type) {
         case Associate:
+            ux_flow_init(0, ux_associate_flow, NULL);
+            break;
         case Verify:
             ux_flow_init(0, ux_verify_flow, NULL);
             break;
         case Create:
-            ux_flow_init(0, ux_create_flow, NULL);
-            break;
         case TokenTransfer:
         case Transfer:
             ux_flow_init(0, ux_transfer_flow, NULL);

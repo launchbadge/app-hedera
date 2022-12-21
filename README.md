@@ -43,6 +43,8 @@ bash-5.1# make python_pb
 podman run -v $PWD:/app --platform linux/amd64 -e PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python -e BOLOS_SDK=/opt/nanos-secure-sdk -it ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest make
 ```
 
+Script `build_elfs.sh` just runs these commands in serial for each SDK and copies the ELFs to the tests/elfs directory with the names that the python tests expect
+
 ### Check
 
 ```

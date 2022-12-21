@@ -90,6 +90,11 @@ void handle_transaction_body() {
     // with Key #X?
     reformat_key();
 
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+    // All flows except Verify
+    if (!is_verify_account()) reformat_operator();
+#endif
+
     // Handle parsed protobuf message of transaction body
     switch (st_ctx.transaction.which_data) {
         case Hedera_TransactionBody_cryptoCreateAccount_tag:
@@ -97,9 +102,8 @@ void handle_transaction_body() {
             reformat_summary("Create Account");
 
 #if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
-            reformat_operator();
-            reformat_fee();
-            reformat_memo();
+            reformat_stake_target();
+            reformat_collect_rewards();
             reformat_amount_balance();
 #endif
             break;
@@ -134,18 +138,10 @@ void handle_transaction_body() {
             break;
 
         case Hedera_TransactionBody_cryptoTransfer_tag:
-            validate_transfer();
-
-#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
-            reformat_operator();
-            reformat_fee();
-            reformat_memo();
-#endif
+            validate_transfer(); // THROWs
 
             if (is_verify_account()) {
-                // Verify Account Transaction
                 st_ctx.type = Verify;
-
                 reformat_summary("Verify Account");
 
 #if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
@@ -155,6 +151,7 @@ void handle_transaction_body() {
             } else if (is_transfer()) {
                 // Some other Transfer Transaction
                 st_ctx.type = Transfer;
+                reformat_summary("Send Hbar");
 
                 // Determine Sender based on amount
                 st_ctx.transfer_from_index = 0;
@@ -167,7 +164,6 @@ void handle_transaction_body() {
                 }
 
 #if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
-                reformat_summary("Send Hbar");
                 reformat_sender_account();
                 reformat_recipient_account();
                 reformat_amount_transfer();
@@ -175,6 +171,7 @@ void handle_transaction_body() {
 
             } else if (is_token_transfer()) {
                 st_ctx.type = TokenTransfer;
+                reformat_summary_send_token();
 
                 // Determine Sender based on amount
                 st_ctx.transfer_from_index = 0;
@@ -187,10 +184,9 @@ void handle_transaction_body() {
                 }
 
 #if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
-                reformat_summary_send_token();
-                reformat_tokens_account_sender();
-                reformat_tokens_account_recipient();
-                reformat_token_tranfer();
+                reformat_token_sender_account();
+                reformat_token_recipient_account();
+                reformat_token_transfer();
 #endif
 
             } else {
@@ -204,6 +200,14 @@ void handle_transaction_body() {
             THROW(EXCEPTION_MALFORMED_APDU);
             break;
     }
+
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+    // All flows except Verify
+    if (!is_verify_account()) {
+        reformat_fee();
+        reformat_memo();
+    }
+#endif
 
     ui_sign_transaction();
 }
