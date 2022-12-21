@@ -6,20 +6,13 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "TransactionBody.pb.h"
-#include "debug.h"
-#include "errors.h"
-#include "glyphs.h"
 #include "handlers.h"
 #include "hedera.h"
 #include "hedera_format.h"
 #include "io.h"
-#include "printf.h"
-#include "proto/TransactionBody.pb.h"
+#include "transaction_body.pb.h"
 #include "ui_common.h"
-#include "ui_flows.h"
 #include "utils.h"
-#include "ux.h"
 
 enum TransactionStep {
     Summary = 1,
@@ -113,7 +106,7 @@ typedef struct sign_tx_context_s {
 #endif
 
     // Parsed transaction
-    HederaTransactionBody transaction;
+    Hedera_TransactionBody transaction;
 } sign_tx_context_t;
 
 extern sign_tx_context_t st_ctx;

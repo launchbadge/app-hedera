@@ -30,15 +30,9 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef _PRINTF_H_
-#define _PRINTF_H_
-
+#pragma once
 #include <stdarg.h>
 #include <stddef.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * Output a character to a custom device like UART, used by the printf()
@@ -113,5 +107,3 @@ int hedera_fctprintf(void (*out)(char character, void* arg), void* arg,
 #ifdef __cplusplus
 }
 #endif
-
-#endif // _PRINTF_H_

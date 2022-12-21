@@ -15,16 +15,23 @@ else:
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
 @typing_extensions.final
-class HederaCryptoCreateTransactionBody(google.protobuf.message.Message):
+class Duration(google.protobuf.message.Message):
+    """*
+    A length of time in seconds.
+    """
+
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
-    INITIALBALANCE_FIELD_NUMBER: builtins.int
-    initialBalance: builtins.int
+    SECONDS_FIELD_NUMBER: builtins.int
+    seconds: builtins.int
+    """*
+    The number of seconds
+    """
     def __init__(
         self,
         *,
-        initialBalance: builtins.int = ...,
+        seconds: builtins.int = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["initialBalance", b"initialBalance"]) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["seconds", b"seconds"]) -> None: ...
 
-global___HederaCryptoCreateTransactionBody = HederaCryptoCreateTransactionBody
+global___Duration = Duration

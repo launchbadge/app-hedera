@@ -92,7 +92,7 @@ void handle_transaction_body() {
 
     // Handle parsed protobuf message of transaction body
     switch (st_ctx.transaction.which_data) {
-        case HederaTransactionBody_cryptoCreateAccount_tag:
+        case Hedera_TransactionBody_cryptoCreateAccount_tag:
             st_ctx.type = Create;
             reformat_summary("Create Account");
 
@@ -104,7 +104,7 @@ void handle_transaction_body() {
 #endif
             break;
 
-        case HederaTransactionBody_tokenAssociate_tag:
+        case Hedera_TransactionBody_tokenAssociate_tag:
             st_ctx.type = Associate;
             reformat_summary("Associate Token");
 
@@ -113,7 +113,7 @@ void handle_transaction_body() {
 #endif
             break;
 
-        case HederaTransactionBody_tokenBurn_tag:
+        case Hedera_TransactionBody_tokenBurn_tag:
             st_ctx.type = TokenBurn;
             reformat_summary("Burn Token");
 
@@ -123,7 +123,7 @@ void handle_transaction_body() {
 #endif
             break;
 
-        case HederaTransactionBody_tokenMint_tag:
+        case Hedera_TransactionBody_tokenMint_tag:
             st_ctx.type = TokenMint;
             reformat_summary("Mint Token");
 
@@ -133,7 +133,7 @@ void handle_transaction_body() {
 #endif
             break;
 
-        case HederaTransactionBody_cryptoTransfer_tag:
+        case Hedera_TransactionBody_cryptoTransfer_tag:
             validate_transfer();
 
 #if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
@@ -245,7 +245,7 @@ void handle_sign_transaction(uint8_t p1, uint8_t p2, uint8_t* buffer,
         pb_istream_from_buffer(raw_transaction, raw_transaction_length);
 
     // Decode the Transaction
-    if (!pb_decode(&stream, HederaTransactionBody_fields,
+    if (!pb_decode(&stream, Hedera_TransactionBody_fields,
                    &st_ctx.transaction)) {
         // Oh no couldn't ...
         THROW(EXCEPTION_MALFORMED_APDU);

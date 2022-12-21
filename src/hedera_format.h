@@ -1,4 +1,8 @@
 #pragma once
+#include "globals.h"
+#include "io.h"
+#include "sign_transaction.h"
+
 void reformat_key(void);
 
 void reformat_summary(const char *summary);

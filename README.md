@@ -65,7 +65,7 @@ curl -sSL https://raw.githubusercontent.com/pdm-project/pdm/main/install-pdm.py 
 ln -s $(pwd)/proto $(pwd)/tests/proto
 ln -s $(pwd)/vendor/nanopb/generator/proto/nanopb_pb2.py $(pwd)/tests/nanopb_pb2.py
 mkdir -p tests/elfs
-cp bin/app.elf tests/elfs/hedera_nanos.elf  # hedera_nanosplus.elf, hedera_nanox.elf
+cp bin/app.elf tests/elfs/hedera_nanos.elf  # hedera_nanosp.elf, hedera_nanox.elf
 
 # Run tests
 cd tests

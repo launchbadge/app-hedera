@@ -1,5 +1,4 @@
-#ifndef LEDGER_HEDERA_GLOBALS_H
-#define LEDGER_HEDERA_GLOBALS_H 1
+#pragma once
 
 #include <stdint.h>
 
@@ -34,4 +33,17 @@ static const uint8_t RIGHT_ICON_ID = 0x02;
 static const uint8_t LINE_1_ID = 0x05;
 static const uint8_t LINE_2_ID = 0x06;
 
-#endif // LEDGER_HEDERA_GLOBALS_H
+// APDU buffer is malformed
+#define EXCEPTION_MALFORMED_APDU 0x6E00
+
+// Instruction request is unknown
+#define EXCEPTION_UNKNOWN_INS 0x6D00
+
+// Internal exception
+#define EXCEPTION_INTERNAL 0x6980
+
+// User rejected action
+#define EXCEPTION_USER_REJECTED 0x6985
+
+// Ok
+#define EXCEPTION_OK 0x9000

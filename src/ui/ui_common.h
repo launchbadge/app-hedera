@@ -1,12 +1,18 @@
 #pragma once
 
-#include "globals.h"
-#include "glyphs.h"
+#include <printf.h>
+
+#include "io.h"
+#include "os.h"
 #include "ux.h"
 
-#if defined(TARGET_NANOS)
+void ui_idle(void);
 
-#include <printf.h>
+void ui_sign_transaction(void);
+
+void ui_get_public_key(void);
+
+#if defined(TARGET_NANOS)
 
 // Common UI element definitions for Nano S
 #define UI_BACKGROUND()                                    \

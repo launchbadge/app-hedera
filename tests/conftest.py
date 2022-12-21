@@ -6,7 +6,8 @@ from ragger.backend import SpeculosBackend, LedgerCommBackend, LedgerWalletBacke
 
 from .utils import app_path_from_app_name
 
-def __str__(self):        # also tried __repr__()
+
+def __str__(self):  # also tried __repr__()
     # Attempt to print the 'select' attribute in "pytest -v" output
     return self.select
 
@@ -18,17 +19,22 @@ APP_NAME = "hedera"
 BACKENDS = ["speculos", "ledgercomm", "ledgerwallet"]
 
 FIRMWARES = [
-    Firmware('nanos', '2.1'),
-    Firmware('nanox', '2.0.2'),
-    Firmware('nanosp', '1.0.3'),
+    Firmware("nanos", "2.1"),
+    Firmware("nanox", "2.0.2"),
+    Firmware("nanosp", "1.0.3"),
 ]
+
 
 def pytest_addoption(parser):
     parser.addoption("--backend", action="store", default="speculos")
     parser.addoption("--display", action="store_true", default=False)
     # Enable using --'device' in the pytest command line to restrict testing to specific devices
     for fw in FIRMWARES:
-        parser.addoption("--"+fw.device, action="store_true", help="run on {} only".format(fw.device))
+        parser.addoption(
+            "--" + fw.device,
+            action="store_true",
+            help="run on {} only".format(fw.device),
+        )
 
 
 @pytest.fixture(scope="session")
@@ -79,21 +85,27 @@ def create_backend(backend: str, firmware: Firmware, display: bool):
         args, kwargs = prepare_speculos_args(firmware, display)
         return SpeculosBackend(*args, firmware, **kwargs)
     else:
-        raise ValueError(f"Backend '{backend}' is unknown. Valid backends are: {BACKENDS}")
+        raise ValueError(
+            f"Backend '{backend}' is unknown. Valid backends are: {BACKENDS}"
+        )
+
 
 @pytest.fixture
 def client(backend, firmware, display: bool):
     with create_backend(backend, firmware, display) as b:
         yield b
 
+
 @pytest.fixture(autouse=True)
 def use_only_on_backend(request, backend):
-    if request.node.get_closest_marker('use_on_backend'):
-        current_backend = request.node.get_closest_marker('use_on_backend').args[0]
+    if request.node.get_closest_marker("use_on_backend"):
+        current_backend = request.node.get_closest_marker("use_on_backend").args[0]
         if current_backend != backend:
-            pytest.skip('skipped on this backend: {}'.format(current_backend))
+            pytest.skip("skipped on this backend: {}".format(current_backend))
+
 
 def pytest_configure(config):
-  config.addinivalue_line(
-        "markers", "use_only_on_backend(backend): skip test if not on the specified backend",
-  )
+    config.addinivalue_line(
+        "markers",
+        "use_only_on_backend(backend): skip test if not on the specified backend",
+    )

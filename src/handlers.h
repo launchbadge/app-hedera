@@ -1,5 +1,4 @@
-#ifndef LEDGER_HEDERA_HANDLERS_H
-#define LEDGER_HEDERA_HANDLERS_H 1
+#pragma once
 
 #include <stddef.h>
 #include <stdint.h>
@@ -16,5 +15,3 @@ typedef void handler_fn_t(uint8_t p1, uint8_t p2, uint8_t* buffer, uint16_t len,
 extern handler_fn_t handle_get_app_configuration;
 extern handler_fn_t handle_get_public_key;
 extern handler_fn_t handle_sign_transaction;
-
-#endif // LEDGER_HEDERA_HANDLERS_H

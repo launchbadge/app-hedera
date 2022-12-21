@@ -1,26 +1,5 @@
 #include "hedera_format.h"
 
-#include <pb.h>
-#include <pb_decode.h>
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-
-#include "TransactionBody.pb.h"
-#include "debug.h"
-#include "errors.h"
-#include "globals.h"
-#include "glyphs.h"
-#include "handlers.h"
-#include "hedera.h"
-#include "io.h"
-#include "printf.h"
-#include "sign_transaction.h"
-#include "ui_common.h"
-#include "ui_flows.h"
-#include "utils.h"
-#include "ux.h"
-
 #define BUF_SIZE 32
 
 static char *hedera_format_amount(uint64_t amount, uint8_t decimals) {
@@ -160,7 +139,7 @@ void reformat_operator(void) {
     hedera_safe_printf(st_ctx.operator, "%llu.%llu.%llu",
                        st_ctx.transaction.transactionID.accountID.shardNum,
                        st_ctx.transaction.transactionID.accountID.realmNum,
-                       st_ctx.transaction.transactionID.accountID.accountNum);
+                       st_ctx.transaction.transactionID.accountID.account);
 
 #if defined(TARGET_NANOS)
     set_title("Operator");
@@ -212,25 +191,19 @@ void reformat_amount_transfer(void) {
 }
 
 void reformat_amount_burn(void) {
-    validate_decimals(
-        st_ctx.transaction.data.tokenBurn.expected_decimals.value);
     hedera_safe_printf(
         st_ctx.amount, "%s",
-        hedera_format_amount(
-            st_ctx.transaction.data.tokenBurn.amount,
-            st_ctx.transaction.data.tokenBurn.expected_decimals.value));
+        hedera_format_amount(st_ctx.transaction.data.tokenBurn.amount,
+                             0)); // Always lowest denomination
 
     set_amount_title("Amount");
 }
 
 void reformat_amount_mint(void) {
-    validate_decimals(
-        st_ctx.transaction.data.tokenMint.expected_decimals.value);
     hedera_safe_printf(
         st_ctx.amount, "%s",
-        hedera_format_amount(
-            st_ctx.transaction.data.tokenMint.amount,
-            st_ctx.transaction.data.tokenMint.expected_decimals.value));
+        hedera_format_amount(st_ctx.transaction.data.tokenMint.amount,
+                             0)); // Always lowest denomination
 
     set_amount_title("Amount");
 }
@@ -286,7 +259,7 @@ void reformat_verify_account() {
         st_ctx.transaction.data.cryptoTransfer.transfers.accountAmounts[ 0 ]
             .accountID.realmNum,
         st_ctx.transaction.data.cryptoTransfer.transfers.accountAmounts[ 0 ]
-            .accountID.accountNum);
+            .accountID.account);
 
     set_senders_title("Account");
 }
@@ -301,7 +274,7 @@ void reformat_sender_account(void) {
                            .accountID.realmNum,
                        st_ctx.transaction.data.cryptoTransfer.transfers
                            .accountAmounts[ st_ctx.transfer_from_index ]
-                           .accountID.accountNum);
+                           .accountID.account);
 
     set_senders_title("Sender");
 }
@@ -316,7 +289,7 @@ void reformat_recipient_account(void) {
                            .accountID.realmNum,
                        st_ctx.transaction.data.cryptoTransfer.transfers
                            .accountAmounts[ st_ctx.transfer_to_index ]
-                           .accountID.accountNum);
+                           .accountID.account);
 
 #if defined(TARGET_NANOS)
     set_title("Recipient");
@@ -334,7 +307,7 @@ void reformat_tokens_account_sender(void) {
             .accountID.realmNum,
         st_ctx.transaction.data.cryptoTransfer.tokenTransfers[ 0 ]
             .transfers[ st_ctx.transfer_from_index ]
-            .accountID.accountNum);
+            .accountID.account);
 
     set_senders_title("Sender");
 }
@@ -350,7 +323,7 @@ void reformat_tokens_account_recipient(void) {
             .accountID.realmNum,
         st_ctx.transaction.data.cryptoTransfer.tokenTransfers[ 0 ]
             .transfers[ st_ctx.transfer_to_index ]
-            .accountID.accountNum);
+            .accountID.account);
 
 #if defined(TARGET_NANOS)
     set_title("Recipient");

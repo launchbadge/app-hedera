@@ -1,7 +1,5 @@
 #include "debug.h"
 
-#include "os.h"
-
 // This symbol is defined by the link script to be at the start of the stack
 // area.
 extern unsigned long app_stack_canary;

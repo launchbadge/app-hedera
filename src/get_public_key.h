@@ -1,7 +1,15 @@
 #pragma once
 
-#include "ux.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+
 #include "globals.h"
+#include "handlers.h"
+#include "hedera.h"
+#include "io.h"
+#include "ui_common.h"
+#include "utils.h"
 
 typedef struct get_public_key_context_s {
     uint32_t key_index;

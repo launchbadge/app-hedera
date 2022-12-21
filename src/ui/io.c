@@ -1,7 +1,4 @@
-#include "debug.h"
-#include "os.h"
-#include "os_io_seproxyhal.h"
-#include "ux.h"
+#include "io.h"
 
 // Everything below this point is Ledger magic. And the magic isn't well-
 // documented, so if you want to understand it, you'll need to read the

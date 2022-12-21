@@ -1,9 +1,8 @@
-#include <os.h>
-#include <os_io_seproxyhal.h>
 #include <stdint.h>
 
-#include "errors.h"
 #include "io.h"
+#include "os.h"
+#include "ux.h"
 
 void handle_get_app_configuration(
     uint8_t p1, uint8_t p2, const uint8_t* const buffer, uint16_t len,
