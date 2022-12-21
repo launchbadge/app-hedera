@@ -197,6 +197,17 @@ void reformat_token_associate(void) {
         st_ctx.transaction.data.tokenAssociate.tokens[ 0 ].tokenNum);
 }
 
+void reformat_token_dissociate(void) {
+    set_senders_title("Token");
+
+    // st_ctx.senders --> st_ctx.full (NANOS)
+    hedera_safe_printf(
+        st_ctx.senders, "%llu.%llu.%llu",
+        st_ctx.transaction.data.tokenDissociate.tokens[ 0 ].shardNum,
+        st_ctx.transaction.data.tokenDissociate.tokens[ 0 ].realmNum,
+        st_ctx.transaction.data.tokenDissociate.tokens[ 0 ].tokenNum);
+}
+
 void reformat_token_mint(void) {
     set_senders_title("Token");
 

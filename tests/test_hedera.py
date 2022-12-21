@@ -6,6 +6,7 @@ from .apps.hedera_builder import crypto_transfer_token_conf
 from .apps.hedera_builder import crypto_transfer_hbar_conf
 from .apps.hedera_builder import crypto_transfer_verify
 from .apps.hedera_builder import token_associate_conf
+from .apps.hedera_builder import token_dissociate_conf
 from .apps.hedera_builder import token_burn_conf
 from .apps.hedera_builder import token_mint_conf
 
@@ -296,6 +297,56 @@ def test_hedera_token_associate_ok(client, firmware):
 def test_hedera_token_associate_refused(client, firmware):
     hedera = HederaClient(client)
     conf = token_associate_conf(
+        token_shardNum=57,
+        token_realmNum=58,
+        token_tokenNum=59,
+        sender_shardNum=100,
+        sender_realmNum=101,
+        sender_accountNum=102,
+    )
+
+    with hedera.send_sign_transaction(
+        index=0,
+        operator_shard_num=1,
+        operator_realm_num=2,
+        operator_account_num=3,
+        transaction_fee=5,
+        memo="this_is_the_memo",
+        conf=conf,
+    ):
+        client.raise_policy = RaisePolicy.RAISE_NOTHING
+        hedera.validate_screen(6)
+
+    rapdu = hedera.get_async_response()
+    assert rapdu.status == ErrorType.EXCEPTION_USER_REJECTED
+
+
+def test_hedera_token_dissociate_ok(client, firmware):
+    hedera = HederaClient(client)
+    conf = token_dissociate_conf(
+        token_shardNum=57,
+        token_realmNum=58,
+        token_tokenNum=59,
+        sender_shardNum=100,
+        sender_realmNum=101,
+        sender_accountNum=102,
+    )
+
+    with hedera.send_sign_transaction(
+        index=0,
+        operator_shard_num=1,
+        operator_realm_num=2,
+        operator_account_num=3,
+        transaction_fee=5,
+        memo="this_is_the_memo",
+        conf=conf,
+    ):
+        hedera.validate_screen(5)
+
+
+def test_hedera_token_dissociate_refused(client, firmware):
+    hedera = HederaClient(client)
+    conf = token_dissociate_conf(
         token_shardNum=57,
         token_realmNum=58,
         token_tokenNum=59,

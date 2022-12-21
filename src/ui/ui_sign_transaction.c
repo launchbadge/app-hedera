@@ -47,6 +47,10 @@ static void reformat_senders(void) {
             reformat_token_associate();
             break;
 
+        case Dissociate:
+            reformat_token_dissociate();
+            break;
+
         case TokenMint:
             reformat_token_mint();
             break;
@@ -296,10 +300,10 @@ void handle_intermediate_left_press() {
         } break;
 
         // Create, Transfer, Mint, Burn return to Amount
-        // Associate returns to Senders
+        // Associate, Dissociate return to Senders
         case Fee: {
             if (first_screen()) { // Return to Senders
-                if (st_ctx.type == Associate) {
+                if (st_ctx.type == Associate || st_ctx.type == Dissociate) {
                     st_ctx.step = Senders;
                     st_ctx.display_index = 1;
                     update_display_count();
@@ -369,7 +373,7 @@ void handle_intermediate_right_press() {
         // Verify continues to Confirm
         // Mint, Burn continue to Amount
         // Create, Transfer continue to Recipients
-        // Associate continues to Fee
+        // Associate, Dissociate continues to Fee
         case Senders: {
             if (last_screen()) {
                 if (st_ctx.type == Verify) { // Continue to Confirm
@@ -390,7 +394,8 @@ void handle_intermediate_right_press() {
                     update_display_count();
                     reformat_recipients();
                     shift_display();
-                } else if (st_ctx.type == Associate) { // Continue to Fee
+                } else if (st_ctx.type == Associate ||
+                           st_ctx.type == Dissociate) { // Continue to Fee
                     st_ctx.step = Fee;
                     st_ctx.display_index = 1;
                     update_display_count();
@@ -640,6 +645,7 @@ void ui_sign_transaction(void) {
 
     switch (st_ctx.type) {
         case Associate:
+        case Dissociate:
             ux_flow_init(0, ux_associate_flow, NULL);
             break;
         case Verify:

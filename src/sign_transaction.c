@@ -117,6 +117,15 @@ void handle_transaction_body() {
 #endif
             break;
 
+        case Hedera_TransactionBody_tokenDissociate_tag:
+            st_ctx.type = Dissociate;
+            reformat_summary("Dissociate Token");
+
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+            reformat_token_dissociate();
+#endif
+            break;
+
         case Hedera_TransactionBody_tokenBurn_tag:
             st_ctx.type = TokenBurn;
             reformat_summary("Burn Token");

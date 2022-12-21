@@ -4,6 +4,7 @@ from proto import transaction_body_pb2
 from proto import basic_types_pb2
 from proto import crypto_create_pb2
 from proto import token_associate_pb2
+from proto import token_dissociate_pb2
 from proto import crypto_transfer_pb2
 from proto import token_burn_pb2
 from proto import token_mint_pb2
@@ -225,6 +226,34 @@ def token_associate_conf(
     )
 
     return {"tokenAssociate": token_associate}
+
+
+def token_dissociate_conf(
+    token_shardNum: int,
+    token_realmNum: int,
+    token_tokenNum: int,
+    sender_shardNum: int,
+    sender_realmNum: int,
+    sender_accountNum: int,
+) -> Dict:
+    hedera_account_id_sender = basic_types_pb2.AccountID(
+        shardNum=sender_shardNum,
+        realmNum=sender_realmNum,
+        accountNum=sender_accountNum,
+    )
+
+    hedera_token_id = basic_types_pb2.TokenID(
+        shardNum=token_shardNum,
+        realmNum=token_realmNum,
+        tokenNum=token_tokenNum,
+    )
+
+    token_associate = token_dissociate_pb2.TokenDissociateTransactionBody(
+        account=hedera_account_id_sender,
+        tokens=[hedera_token_id],
+    )
+
+    return {"tokenDissociate": token_associate}
 
 
 def token_burn_conf(

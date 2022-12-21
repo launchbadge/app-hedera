@@ -33,9 +33,10 @@ enum TransactionType {
     Create = 1,
     Transfer = 2,
     Associate = 3,
-    TokenTransfer = 4,
-    TokenMint = 5,
-    TokenBurn = 6,
+    Dissociate = 4,
+    TokenTransfer = 5,
+    TokenMint = 6,
+    TokenBurn = 7,
 };
 
 /*
@@ -59,6 +60,10 @@ enum TransactionType {
  * Associate:
  * "Associate Token with Key #0?" (Summary) <--> Operator <--> "Token" (Senders)
  * <--> Fee <--> Memo <--> Confirm <--> Deny
+ *
+ * Dissociate:
+ * "Dissociate Token with Key #0?" (Summary) <--> Operator <-->
+ * "Token" (Senders) <--> Fee <--> Memo <--> Confirm <--> Deny
  *
  * TokenMint:
  * "Mint Token with Key #0?" (Summary) <--> Operator <--> "Token" (Senders) <-->
