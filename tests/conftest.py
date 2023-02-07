@@ -1,17 +1,12 @@
-from pathlib import Path
 import pytest
-
-from ragger import Firmware
+from pathlib import Path
+from ragger.firmware import Firmware
 from ragger.backend import SpeculosBackend, LedgerCommBackend, LedgerWalletBackend
-
-from .utils import app_path_from_app_name
-
-
-def __str__(self):  # also tried __repr__()
-    # Attempt to print the 'select' attribute in "pytest -v" output
-    return self.select
+from ragger.navigator import NanoNavigator
+from ragger.utils import app_path_from_app_name
 
 
+# This variable is needed for Speculos only (physical tests need the application to be already installed)
 APPS_DIRECTORY = (Path(__file__).parent / "elfs").resolve()
 
 APP_NAME = "hedera"
@@ -19,22 +14,18 @@ APP_NAME = "hedera"
 BACKENDS = ["speculos", "ledgercomm", "ledgerwallet"]
 
 FIRMWARES = [
-    Firmware("nanos", "2.1"),
-    Firmware("nanox", "2.0.2"),
-    Firmware("nanosp", "1.0.3"),
+    Firmware('nanos', '2.1'),
+    Firmware('nanox', '2.0.2'),
+    Firmware('nanosp', '1.0.3'),
 ]
-
 
 def pytest_addoption(parser):
     parser.addoption("--backend", action="store", default="speculos")
     parser.addoption("--display", action="store_true", default=False)
+    parser.addoption("--golden_run", action="store_true", default=False)
     # Enable using --'device' in the pytest command line to restrict testing to specific devices
     for fw in FIRMWARES:
-        parser.addoption(
-            "--" + fw.device,
-            action="store_true",
-            help="run on {} only".format(fw.device),
-        )
+        parser.addoption("--"+fw.device, action="store_true", help="run on {} only".format(fw.device))
 
 
 @pytest.fixture(scope="session")
@@ -45,6 +36,22 @@ def backend(pytestconfig):
 @pytest.fixture(scope="session")
 def display(pytestconfig):
     return pytestconfig.getoption("display")
+
+
+@pytest.fixture(scope="session")
+def golden_run(pytestconfig):
+    return pytestconfig.getoption("golden_run")
+
+
+@pytest.fixture
+def test_name(request):
+    # Get the name of current pytest test
+    test_name = request.node.name
+
+    # Remove firmware suffix:
+    # -  test_xxx_transaction_ok[nanox 2.0.2]
+    # => test_xxx_transaction_ok
+    return test_name.split("[")[0]
 
 
 # Glue to call every test that depends on the firmware once for each required firmware
@@ -65,7 +72,7 @@ def pytest_generate_tests(metafunc):
         metafunc.parametrize("firmware", fw_list, ids=ids)
 
 
-def prepare_speculos_args(firmware, display: bool):
+def prepare_speculos_args(firmware: Firmware, display: bool):
     speculos_args = []
 
     if display:
@@ -76,6 +83,9 @@ def prepare_speculos_args(firmware, display: bool):
     return ([app_path], {"args": speculos_args})
 
 
+# Depending on the "--backend" option value, a different backend is
+# instantiated, and the tests will either run on Speculos or on a physical
+# device depending on the backend
 def create_backend(backend: str, firmware: Firmware, display: bool):
     if backend.lower() == "ledgercomm":
         return LedgerCommBackend(firmware, interface="hid")
@@ -85,27 +95,36 @@ def create_backend(backend: str, firmware: Firmware, display: bool):
         args, kwargs = prepare_speculos_args(firmware, display)
         return SpeculosBackend(*args, firmware, **kwargs)
     else:
-        raise ValueError(
-            f"Backend '{backend}' is unknown. Valid backends are: {BACKENDS}"
-        )
+        raise ValueError(f"Backend '{backend}' is unknown. Valid backends are: {BACKENDS}")
 
 
+# This final fixture will return the properly configured backend client, to be used in tests
 @pytest.fixture
 def client(backend, firmware, display: bool):
     with create_backend(backend, firmware, display) as b:
         yield b
 
 
+@pytest.fixture
+def navigator(client, firmware, golden_run):
+    if firmware.device.startswith("nano"):
+        return NanoNavigator(client, firmware, golden_run)
+    elif firmware.device.startswith("fat"):
+        return FatstacksNavigator(client, firmware, golden_run)
+    else:
+        return None
+        # raise ValueError(f"Device '{firmware.device}' is unsupported.")
+
+
 @pytest.fixture(autouse=True)
 def use_only_on_backend(request, backend):
-    if request.node.get_closest_marker("use_on_backend"):
-        current_backend = request.node.get_closest_marker("use_on_backend").args[0]
+    if request.node.get_closest_marker('use_on_backend'):
+        current_backend = request.node.get_closest_marker('use_on_backend').args[0]
         if current_backend != backend:
-            pytest.skip("skipped on this backend: {}".format(current_backend))
+            pytest.skip('skipped on this backend: {}'.format(current_backend))
 
 
 def pytest_configure(config):
     config.addinivalue_line(
-        "markers",
-        "use_only_on_backend(backend): skip test if not on the specified backend",
+        "markers", "use_only_on_backend(backend): skip test if not on the specified backend",
     )
