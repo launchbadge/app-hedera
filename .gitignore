@@ -1,18 +1,13 @@
 # Build files
 bin/
-dep/
-obj/
 debug/
-src/glyphs.c
-src/glyphs.h
+build/
 src/pb_*
 
 # Editors
 .idea
 
 # Protos
-proto/*.c
-proto/*.h
 *.pyc
 
 # Tests
