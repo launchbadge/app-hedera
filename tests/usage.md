@@ -20,23 +20,15 @@ You can use for this the container `ghcr.io/ledgerhq/ledger-app-builder/ledger-a
 docker pull ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-lite:latest
 cd <your app repository>                        # replace <appname> with the name of your app, (eg boilerplate)
 docker run --user "$(id -u)":"$(id -g)" --rm -ti -v "$(realpath .):/app" --privileged -v "/dev/bus/usb:/dev/bus/usb" ledger-app-builder-lite:latest
-make clean && make BOLOS_SDK=$<device>_SDK      # replace <device> with one of [NANOS, NANOX, NANOSP]
+make clean && make BOLOS_SDK=$<device>_SDK      # replace <device> with one of [NANOS, NANOX, NANOSP, STAX]
 exit
 ```
 
 ### Run a simple test using the Speculos emulator
 
-Copy the compiled binaries to the `elfs` directory, create the directory if necessary.
-```
-mkdir -p tests/elfs/
-cp bin/app.elf tests/elfs/<appname>_<device>.elf    # replace <device> with one of [nanos, nanox, nanosp]
-                                                    # replace <appname> with the name of your app, (eg boilerplate)
-                                                    # so for example tests/elfs/boilerplate_nanos.elf
-```
-
 You can use the following command to get your first experience with Ragger and Speculos
 ```
-pytest -v --tb=short --nanox --display
+pytest -v --tb=short --device nanox --display
 ```
 Or you can refer to the section `Available pytest options` to configure the options you want to use
 
@@ -49,14 +41,14 @@ You can use for this the container `ghcr.io/ledgerhq/ledger-app-builder/ledger-a
 docker pull ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-lite:latest
 cd app-<appname>/                                   # replace <appname> with the name of your app, (eg boilerplate)
 docker run --user "$(id -u)":"$(id -g)" --rm -ti -v "$(realpath .):/app" --privileged -v "/dev/bus/usb:/dev/bus/usb" ledger-app-builder-lite:latest
-make clean && make BOLOS_SDK=$<device>_SDK load     # replace <device> with one of [NANOS, NANOX, NANOSP]
+make clean && make BOLOS_SDK=$<device>_SDK load     # replace <device> with one of [NANOS, NANOX, NANOSP, STAX]
 exit
 ```
 
 You can use the following command to get your first experience with Ragger and Ledgerwallet on a NANOX.
 Make sure that the device is plugged, unlocked, and that the tested application is open.
 ```
-pytest -v --tb=short --nanox --backend ledgerwallet
+pytest -v --tb=short --device nanox --backend ledgerwallet
 ```
 Or you can refer to the section `Available pytest options` to configure the options you want to use
 
@@ -73,12 +65,10 @@ Standard useful pytest options
 
 Custom pytest options
 ```
+    --device <device>           run the test on the specified device [nanos,nanox,nanosp,stax,all]. This parameter is mandatory
     --backend <backend>         run the tests against the backend [speculos, ledgercomm, ledgerwallet]. Speculos is the default
     --display                   on Speculos, enables the display of the app screen using QT
     --golden_run                on Speculos, screen comparison functions will save the current screen instead of comparing
     --log_apdu_file <filepath>  log all apdu exchanges to the file in parameter. The previous file content is erased
-    --nanos                     run only the test for the nanos device
-    --nanox                     run only the test for the nanox device
-    --nanosp                    run only the test for the nanosp device
 ``` 
 
