@@ -1,6 +1,7 @@
 
 #include "sign_transaction.h"
 #include "ui_common.h"
+#include "proto/crypto_create.pb.h"
 
 #if defined(TARGET_NANOS)
 
@@ -262,11 +263,19 @@ void handle_intermediate_left_press() {
         // Other flows do not have Recipients
         case Recipients: {
             if (first_screen()) {
-                st_ctx.step = Senders;
-                st_ctx.display_index = 1;
-                update_display_count();
-                reformat_senders();
-                shift_display();
+                if((st_ctx.type == Create || st_ctx.type == Update) && st_ctx.transaction.data.cryptoCreateAccount.which_staked_id != Hedera_CryptoCreateTransactionBody_staked_account_id_tag && st_ctx.transaction.data.cryptoCreateAccount.which_staked_id != Hedera_CryptoCreateTransactionBody_staked_node_id_tag) {
+                    st_ctx.step = Operator;
+                    st_ctx.display_index = 1;
+                    update_display_count();
+                    reformat_operator();
+                    shift_display();
+                } else {
+                    st_ctx.step = Senders;
+                    st_ctx.display_index = 1;
+                    update_display_count();
+                    reformat_senders();
+                    shift_display();
+                }
             } else { // Scroll Left
                 st_ctx.display_index--;
                 update_display_count();
@@ -363,11 +372,19 @@ void handle_intermediate_right_press() {
         // All flows proceed from Operator to Senders
         case Operator: {
             if (last_screen()) { // Continue to Senders
-                st_ctx.step = Senders;
-                st_ctx.display_index = 1;
-                update_display_count();
-                reformat_senders();
-                shift_display();
+                if((st_ctx.type == Create  || st_ctx.type == Update) && st_ctx.transaction.data.cryptoCreateAccount.which_staked_id != Hedera_CryptoCreateTransactionBody_staked_account_id_tag && st_ctx.transaction.data.cryptoCreateAccount.which_staked_id != Hedera_CryptoCreateTransactionBody_staked_node_id_tag) {
+                    st_ctx.step = Amount;
+                    st_ctx.display_index = 1;
+                    update_display_count();
+                    reformat_amount();
+                    shift_display();
+                } else {
+                    st_ctx.step = Senders;
+                    st_ctx.display_index = 1;
+                    update_display_count();
+                    reformat_senders();
+                    shift_display();
+                }
             } else { // Scroll Right
                 st_ctx.display_index++;
                 update_display_count();
