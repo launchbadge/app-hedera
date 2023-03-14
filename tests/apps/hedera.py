@@ -5,7 +5,6 @@ from time import sleep
 
 from ragger.backend.interface import BackendInterface, RAPDU
 
-from ..utils import validate_displayed_message
 from .hedera_builder import hedera_transaction
 
 
@@ -54,15 +53,6 @@ class HederaClient:
         with self._client.exchange_async(CLA, INS.INS_GET_PUBLIC_KEY, P1_CONFIRM, 0, index_b):
             sleep(0.5)
             yield
-
-    def validate(self):
-        self._client.right_click()
-
-    def refuse(self):
-        self._client.left_click()
-
-    def validate_screen(self, right_clicks: int):
-        validate_displayed_message(self._client, right_clicks)
 
     def get_async_response(self) -> RAPDU:
         return self._client.last_async_response

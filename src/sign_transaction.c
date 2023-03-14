@@ -1,24 +1,4 @@
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <pb.h>
-#include <pb_decode.h>
-
-#include "printf.h"
-#include "globals.h"
-#include "glyphs.h"
-#include "ux.h"
-#include "debug.h"
-#include "errors.h"
-#include "handlers.h"
-#include "hedera.h"
-#include "hedera_format.h"
-#include "io.h"
-#include "TransactionBody.pb.h"
-#include "utils.h"
-#include "ui_flows.h"
 #include "sign_transaction.h"
-#include "ui_common.h"
 
 sign_tx_context_t st_ctx;
 
@@ -26,15 +6,15 @@ sign_tx_context_t st_ctx;
 // Either a transfer between two accounts
 // Or a token transfer between two accounts
 static void validate_transfer(void) {
-    if (st_ctx.transaction.data.cryptoTransfer.transfers.accountAmounts_count > 2) {
+    if (st_ctx.transaction.data.cryptoTransfer.transfers.accountAmounts_count >
+        2) {
         // More than two accounts in a transfer
         THROW(EXCEPTION_MALFORMED_APDU);
     }
 
-    if (
-        st_ctx.transaction.data.cryptoTransfer.transfers.accountAmounts_count == 2 &&
-        st_ctx.transaction.data.cryptoTransfer.tokenTransfers_count != 0
-    ) {
+    if (st_ctx.transaction.data.cryptoTransfer.transfers.accountAmounts_count ==
+            2 &&
+        st_ctx.transaction.data.cryptoTransfer.tokenTransfers_count != 0) {
         // Can't also transfer tokens while sending hbar
         THROW(EXCEPTION_MALFORMED_APDU);
     }
@@ -45,13 +25,16 @@ static void validate_transfer(void) {
     }
 
     if (st_ctx.transaction.data.cryptoTransfer.tokenTransfers_count == 1) {
-        if (st_ctx.transaction.data.cryptoTransfer.tokenTransfers[0].transfers_count != 2) {
+        if (st_ctx.transaction.data.cryptoTransfer.tokenTransfers[ 0 ]
+                .transfers_count != 2) {
             // More than two accounts in a token transfer
             THROW(EXCEPTION_MALFORMED_APDU);
         }
 
-        if (st_ctx.transaction.data.cryptoTransfer.transfers.accountAmounts_count != 0) {
-            // Can't also transfer Hbar if the transaction is an otherwise valid token transfer
+        if (st_ctx.transaction.data.cryptoTransfer.transfers
+                .accountAmounts_count != 0) {
+            // Can't also transfer Hbar if the transaction is an otherwise valid
+            // token transfer
             THROW(EXCEPTION_MALFORMED_APDU);
         }
     }
@@ -59,14 +42,19 @@ static void validate_transfer(void) {
 
 static bool is_verify_account(void) {
     // Only 1 Account (Sender), Fee 1 Tinybar, and Value 0 Tinybar
-    return (st_ctx.transaction.data.cryptoTransfer.transfers.accountAmounts[0].amount == 0
-            && st_ctx.transaction.data.cryptoTransfer.transfers.accountAmounts_count == 1
-            && st_ctx.transaction.transactionFee == 1);
+    return (
+        st_ctx.transaction.data.cryptoTransfer.transfers.accountAmounts[ 0 ]
+                .amount == 0 &&
+        st_ctx.transaction.data.cryptoTransfer.transfers.accountAmounts_count ==
+            1 &&
+        st_ctx.transaction.transactionFee == 1);
 }
 
 static bool is_transfer(void) {
     // Number of Accounts == 2
-    return (st_ctx.transaction.data.cryptoTransfer.transfers.accountAmounts_count == 2);
+    return (
+        st_ctx.transaction.data.cryptoTransfer.transfers.accountAmounts_count ==
+        2);
 }
 
 static bool is_token_transfer(void) {
@@ -102,21 +90,36 @@ void handle_transaction_body() {
     // with Key #X?
     reformat_key();
 
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+    // All flows except Verify
+    if (!is_verify_account()) reformat_operator();
+#endif
+
     // Handle parsed protobuf message of transaction body
     switch (st_ctx.transaction.which_data) {
-        case HederaTransactionBody_cryptoCreateAccount_tag:
+        case Hedera_TransactionBody_cryptoCreateAccount_tag:
             st_ctx.type = Create;
             reformat_summary("Create Account");
 
 #if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
-            reformat_operator();
-            reformat_fee();
-            reformat_memo();
+            reformat_stake_target();
+            reformat_collect_rewards();
             reformat_amount_balance();
 #endif
             break;
 
-        case HederaTransactionBody_tokenAssociate_tag:
+        case Hedera_TransactionBody_cryptoUpdateAccount_tag:
+            st_ctx.type = Update;
+            reformat_summary("Update Account");
+
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+            reformat_stake_target();
+            reformat_collect_rewards();
+            reformat_updated_account();
+#endif
+            break;
+
+        case Hedera_TransactionBody_tokenAssociate_tag:
             st_ctx.type = Associate;
             reformat_summary("Associate Token");
 
@@ -125,7 +128,16 @@ void handle_transaction_body() {
 #endif
             break;
 
-        case HederaTransactionBody_tokenBurn_tag:
+        case Hedera_TransactionBody_tokenDissociate_tag:
+            st_ctx.type = Dissociate;
+            reformat_summary("Dissociate Token");
+
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+            reformat_token_dissociate();
+#endif
+            break;
+
+        case Hedera_TransactionBody_tokenBurn_tag:
             st_ctx.type = TokenBurn;
             reformat_summary("Burn Token");
 
@@ -135,7 +147,7 @@ void handle_transaction_body() {
 #endif
             break;
 
-        case HederaTransactionBody_tokenMint_tag:
+        case Hedera_TransactionBody_tokenMint_tag:
             st_ctx.type = TokenMint;
             reformat_summary("Mint Token");
 
@@ -145,19 +157,11 @@ void handle_transaction_body() {
 #endif
             break;
 
-        case HederaTransactionBody_cryptoTransfer_tag:
-            validate_transfer();
-
-#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
-            reformat_operator();
-            reformat_fee();
-            reformat_memo();
-#endif
+        case Hedera_TransactionBody_cryptoTransfer_tag:
+            validate_transfer(); // THROWs
 
             if (is_verify_account()) {
-                // Verify Account Transaction
                 st_ctx.type = Verify;
-
                 reformat_summary("Verify Account");
 
 #if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
@@ -167,17 +171,19 @@ void handle_transaction_body() {
             } else if (is_transfer()) {
                 // Some other Transfer Transaction
                 st_ctx.type = Transfer;
+                reformat_summary("Send Hbar");
 
                 // Determine Sender based on amount
                 st_ctx.transfer_from_index = 0;
                 st_ctx.transfer_to_index = 1;
-                if (st_ctx.transaction.data.cryptoTransfer.transfers.accountAmounts[0].amount > 0) {
+                if (st_ctx.transaction.data.cryptoTransfer.transfers
+                        .accountAmounts[ 0 ]
+                        .amount > 0) {
                     st_ctx.transfer_from_index = 1;
                     st_ctx.transfer_to_index = 0;
                 }
 
 #if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
-                reformat_summary("Send Hbar");
                 reformat_sender_account();
                 reformat_recipient_account();
                 reformat_amount_transfer();
@@ -185,28 +191,29 @@ void handle_transaction_body() {
 
             } else if (is_token_transfer()) {
                 st_ctx.type = TokenTransfer;
+                reformat_summary_send_token();
 
                 // Determine Sender based on amount
                 st_ctx.transfer_from_index = 0;
                 st_ctx.transfer_to_index = 1;
-                if (st_ctx.transaction.data.cryptoTransfer.tokenTransfers[0].transfers[0].amount > 0)
-                {
+                if (st_ctx.transaction.data.cryptoTransfer.tokenTransfers[ 0 ]
+                        .transfers[ 0 ]
+                        .amount > 0) {
                     st_ctx.transfer_from_index = 1;
                     st_ctx.transfer_to_index = 0;
                 }
 
 #if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
-                reformat_summary_send_token();
-                reformat_tokens_account_sender();
-                reformat_tokens_account_recipient();
-                reformat_token_tranfer();
+                reformat_token_sender_account();
+                reformat_token_recipient_account();
+                reformat_token_transfer();
 #endif
 
             } else {
                 // Unsupported
                 THROW(EXCEPTION_MALFORMED_APDU);
             }
-        break;
+            break;
 
         default:
             // Unsupported
@@ -214,21 +221,23 @@ void handle_transaction_body() {
             break;
     }
 
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+    // All flows except Verify
+    if (!is_verify_account()) {
+        reformat_fee();
+        reformat_memo();
+    }
+#endif
+
     ui_sign_transaction();
 }
 
-
-
 // Sign Handler
 // Decodes and handles transaction message
-void handle_sign_transaction(
-    uint8_t p1,
-    uint8_t p2,
-    uint8_t* buffer,
-    uint16_t len,
-    /* out */ volatile unsigned int* flags,
-    /* out */ volatile unsigned int* tx
-) {
+void handle_sign_transaction(uint8_t p1, uint8_t p2, uint8_t* buffer,
+                             uint16_t len,
+                             /* out */ volatile unsigned int* flags,
+                             /* out */ volatile unsigned int* tx) {
     UNUSED(p1);
     UNUSED(p2);
     UNUSED(tx);
@@ -237,7 +246,7 @@ void handle_sign_transaction(
     st_ctx.key_index = U4LE(buffer, 0);
 
     // Raw Tx
-    uint8_t raw_transaction[MAX_TX_SIZE];
+    uint8_t raw_transaction[ MAX_TX_SIZE ];
     int raw_transaction_length = len - 4;
 
     // Oops Oof Owie
@@ -250,27 +259,18 @@ void handle_sign_transaction(
 
     // Sign Transaction
     // TODO: handle error return here (internal error?!)
-    if (!hedera_sign(
-        st_ctx.key_index,
-        raw_transaction,
-        raw_transaction_length,
-        G_io_apdu_buffer
-    )) {
+    if (!hedera_sign(st_ctx.key_index, raw_transaction, raw_transaction_length,
+                     G_io_apdu_buffer)) {
         THROW(EXCEPTION_INTERNAL);
     }
 
     // Make in memory buffer into stream
-    pb_istream_t stream = pb_istream_from_buffer(
-        raw_transaction,
-        raw_transaction_length
-    );
+    pb_istream_t stream =
+        pb_istream_from_buffer(raw_transaction, raw_transaction_length);
 
     // Decode the Transaction
-    if (!pb_decode(
-        &stream,
-        HederaTransactionBody_fields,
-        &st_ctx.transaction
-    )) {
+    if (!pb_decode(&stream, Hedera_TransactionBody_fields,
+                   &st_ctx.transaction)) {
         // Oh no couldn't ...
         THROW(EXCEPTION_MALFORMED_APDU);
     }

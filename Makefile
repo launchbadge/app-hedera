@@ -26,8 +26,8 @@ include $(BOLOS_SDK)/Makefile.defines
 APP_LOAD_PARAMS= --curve ed25519 --path "44'/3030'" --appFlags 0x240 $(COMMON_LOAD_PARAMS)
 
 APPVERSION_M = 1
-APPVERSION_N = 1
-APPVERSION_P = 2
+APPVERSION_N = 2
+APPVERSION_P = 0
 APPVERSION = $(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)
 APPNAME = Hedera
 
@@ -173,7 +173,8 @@ $(C_PB_FILES): %.pb.c: $(PB_FILES)
 $(PYTHON_PB_FILES): %_pb2.py: $(PB_FILES)
 	$(PROTOC) $(PROTOC_OPTS) --python_out=. $*.proto
 
-.PHONY: python_pb clean_python_pb
+.PHONY: c_pb python_pb clean_python_pb
+c_pb: $(C_PB_FILES)
 python_pb: $(PYTHON_PB_FILES)
 clean_python_pb:
 	rm -f $(PYTHON_PB_FILES)
