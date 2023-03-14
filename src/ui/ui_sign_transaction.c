@@ -263,7 +263,13 @@ void handle_intermediate_left_press() {
         // Other flows do not have Recipients
         case Recipients: {
             if (first_screen()) {
-                if((st_ctx.type == Create || st_ctx.type == Update) && st_ctx.transaction.data.cryptoCreateAccount.which_staked_id != Hedera_CryptoCreateTransactionBody_staked_account_id_tag && st_ctx.transaction.data.cryptoCreateAccount.which_staked_id != Hedera_CryptoCreateTransactionBody_staked_node_id_tag) {
+                if(
+                    (st_ctx.type == Create || st_ctx.type == Update) 
+                    && st_ctx.transaction.data.cryptoCreateAccount.which_staked_id != Hedera_CryptoCreateTransactionBody_staked_account_id_tag 
+                    && st_ctx.transaction.data.cryptoCreateAccount.which_staked_id != Hedera_CryptoCreateTransactionBody_staked_node_id_tag
+                    && st_ctx.transaction.data.cryptoUpdateAccount.which_staked_id != Hedera_CryptoUpdateTransactionBody_staked_account_id_tag 
+                    && st_ctx.transaction.data.cryptoUpdateAccount.which_staked_id != Hedera_CryptoUpdateTransactionBody_staked_node_id_tag
+                ) {
                     st_ctx.step = Operator;
                     st_ctx.display_index = 1;
                     update_display_count();
@@ -372,7 +378,13 @@ void handle_intermediate_right_press() {
         // All flows proceed from Operator to Senders
         case Operator: {
             if (last_screen()) { // Continue to Senders
-                if((st_ctx.type == Create  || st_ctx.type == Update) && st_ctx.transaction.data.cryptoCreateAccount.which_staked_id != Hedera_CryptoCreateTransactionBody_staked_account_id_tag && st_ctx.transaction.data.cryptoCreateAccount.which_staked_id != Hedera_CryptoCreateTransactionBody_staked_node_id_tag) {
+                if(
+                    (st_ctx.type == Create || st_ctx.type == Update) 
+                    && st_ctx.transaction.data.cryptoCreateAccount.which_staked_id != Hedera_CryptoCreateTransactionBody_staked_account_id_tag 
+                    && st_ctx.transaction.data.cryptoCreateAccount.which_staked_id != Hedera_CryptoCreateTransactionBody_staked_node_id_tag
+                    && st_ctx.transaction.data.cryptoUpdateAccount.which_staked_id != Hedera_CryptoUpdateTransactionBody_staked_account_id_tag 
+                    && st_ctx.transaction.data.cryptoUpdateAccount.which_staked_id != Hedera_CryptoUpdateTransactionBody_staked_node_id_tag
+                ) {
                     st_ctx.step = Amount;
                     st_ctx.display_index = 1;
                     update_display_count();
