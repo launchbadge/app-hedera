@@ -4,9 +4,6 @@
 #include "ui_common.h"
 
 #ifdef HAVE_NBGL
-#include "nbgl_fonts.h"
-#include "nbgl_front.h"
-#include "nbgl_debug.h"
 #include "nbgl_page.h"
 #include "nbgl_use_case.h"
 #endif
@@ -97,7 +94,7 @@ UX_DEF(ux_idle_flow, &ux_idle_flow_1_step, &ux_idle_flow_2_step,
        &ux_idle_flow_3_step);
 
 
-#elif defined(HAVE_NBGL)
+#elif defined(TARGET_STAX)
 
 
 static const char* const infoTypes[] = {"Version", "Hedera"};
@@ -125,7 +122,6 @@ static void ui_menu_about(void) {
 }
 
 static void quit_app_callback(void) {
-    releaseContext();
     os_sched_exit(-1);
 }
 
@@ -155,7 +151,7 @@ void ui_idle(void) {
     }
     ux_flow_init(0, ux_idle_flow, NULL);
 
-#elif defined (HAVE_NBGL)
+#elif defined (TARGET_STAX)
 
     ui_idle_nbgl();
 

@@ -4,6 +4,7 @@
 
 #include "io.h"
 #include "os.h"
+#include "ux.h"
 
 void ui_idle(void);
 
@@ -61,7 +62,3 @@ void ui_get_public_key(void);
     }
 
 #endif // TARGET
-
-#ifdef TARGET_STAX
-void releaseContext(void);
-#endif

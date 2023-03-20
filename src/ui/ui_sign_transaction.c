@@ -5,9 +5,6 @@
 #include "proto/crypto_create.pb.h"
 
 #ifdef HAVE_NBGL
-#include "nbgl_fonts.h"
-#include "nbgl_front.h"
-#include "nbgl_debug.h"
 #include "nbgl_page.h"
 #include "nbgl_use_case.h"
 #endif

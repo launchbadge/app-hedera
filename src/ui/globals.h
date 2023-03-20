@@ -2,11 +2,6 @@
 
 #include <stdint.h>
 
-#ifdef HAVE_NBGL
-#include "nbgl_page.h"
-extern nbgl_page_t *pageContext;
-#endif  // HAVE_NBGL
-
 #define BIP32_PATH 5
 #define DISPLAY_SIZE 18 // characters @ 11pt sys font
 

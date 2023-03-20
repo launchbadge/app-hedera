@@ -4,11 +4,6 @@
 #include "handlers.h"
 #include "ui_common.h"
 
-#ifdef TARGET_STAX
-#include "nbgl_touch.h"
-#include "nbgl_page.h"
-#endif  // TARGET_STAX
-
 // This is the main loop that reads and writes APDUs. It receives request
 // APDUs from the computer, looks up the corresponding command handler, and
 // calls it on the APDU payload. Then it loops around and calls io_exchange
@@ -23,10 +18,6 @@
 #if defined(TARGET_NANOX) || defined(TARGET_NANOS2) || defined(TARGET_STAX)
 ux_state_t G_ux;
 bolos_ux_params_t G_ux_params;
-#endif
-
-#if defined (TARGET_STAX)
-nbgl_page_t *pageContext;
 #endif
 
 void app_main() {
@@ -135,12 +126,7 @@ __attribute__((section(".boot"))) int main() {
 
     for (;;) {
         // Initialize the UX system
-#ifdef HAVE_BAGL
         UX_INIT();
-#endif  // HAVE_BAGL
-#ifdef TARGET_STAX
-        nbgl_objInit();
-#endif  // TARGET_STAX
 
         BEGIN_TRY {
             TRY {
@@ -148,7 +134,7 @@ __attribute__((section(".boot"))) int main() {
                 // the Ledger SDK
                 io_seproxyhal_init();
 
-#ifdef TARGET_NANOX
+#ifdef HAVE_BLE
                 // grab the current plane mode setting
                 G_io_app.plane_mode =
                     os_setting_get(OS_SETTING_PLANEMODE, NULL, 0);
