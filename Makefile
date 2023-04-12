@@ -163,16 +163,11 @@ include $(BOLOS_SDK)/Makefile.glyphs
 APP_SOURCE_PATH  += src proto
 SDK_SOURCE_PATH  += lib_stusb lib_stusb_impl lib_u2f
 
-ifeq ($(TARGET_NAME),TARGET_STAX)
-SDK_SOURCE_PATH  += lib_nbgl/src
-SDK_SOURCE_PATH  += lib_ux_stax
-else
+ifneq ($(TARGET_NAME),TARGET_STAX)
 SDK_SOURCE_PATH  += lib_ux
 endif
 
-ifeq ($(TARGET_NAME),TARGET_NANOX)
-SDK_SOURCE_PATH  += lib_blewbxx lib_blewbxx_impl
-else ifeq ($(TARGET_NAME),TARGET_STAX)
+ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_NANOX TARGET_STAX))
 SDK_SOURCE_PATH  += lib_blewbxx lib_blewbxx_impl
 endif
 

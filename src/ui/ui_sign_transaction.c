@@ -683,7 +683,7 @@ UX_DEF(ux_associate_flow, &summary_step, &operator_step, &senders_step,
 
 static void rejectChoice(void) {
     io_exchange_with_code(EXCEPTION_USER_REJECTED, 0);
-    nbgl_useCaseStatus("message\nrejected", false, ui_idle);
+    nbgl_useCaseStatus("Message\nrejected", false, ui_idle);
 }
 
 static void rejectUseCaseChoice(void) {
@@ -700,15 +700,11 @@ static void review_final_callback(bool confirmed) {
 }
 
 // Max is 8 infos for transfer transaction
+// If a new flow is added or flows are modified to include more steps, don't forget to update the infos array size!
 static nbgl_layoutTagValue_t infos[8];
 static nbgl_layoutTagValueList_t layout;
 
 static void start_review(void) {
-    layout.nbMaxLinesForValue = 0;
-    layout.smallCaseForValue = true;
-    layout.wrapping = true;
-    layout.pairs = infos;
-
     uint8_t index = 0;
     infos[index].item = "Transaction Summary";
     infos[index].value = st_ctx.summary_line_1;
@@ -773,7 +769,12 @@ static void start_review(void) {
             ;
     }
 
+    // If a new flow is added or flows are modified to include more steps, don't forget to update the infos array size!
     layout.nbPairs = index;
+    layout.nbMaxLinesForValue = 0;
+    layout.smallCaseForValue = true;
+    layout.wrapping = true;
+    layout.pairs = infos;
 
     static const nbgl_pageInfoLongPress_t review_final_long_press = {
         .text = "Sign message on\nHedera network?",

@@ -113,15 +113,13 @@ UX_DEF(ux_compare_pk_flow, &ux_compare_pk_flow_1_step);
 
 static void compare_pk() { ux_flow_init(0, ux_compare_pk_flow, NULL); }
 
-static unsigned int io_seproxyhal_touch_pk_ok(const bagl_element_t *e) {
-    UNUSED(e);
+static unsigned int pk_approved() {
     io_exchange_with_code(EXCEPTION_OK, 32);
     compare_pk();
     return 0;
 }
 
-static unsigned int io_seproxyhal_touch_pk_cancel(const bagl_element_t *e) {
-    UNUSED(e);
+static unsigned int pk_rejected() {
     io_exchange_with_code(EXCEPTION_USER_REJECTED, 0);
     ui_idle();
     return 0;
@@ -130,11 +128,11 @@ static unsigned int io_seproxyhal_touch_pk_cancel(const bagl_element_t *e) {
 UX_STEP_NOCB(ux_approve_pk_flow_1_step, bn,
              {"Export Public", gpk_ctx.ui_approve_l2});
 
-UX_STEP_VALID(ux_approve_pk_flow_2_step, pb, io_seproxyhal_touch_pk_ok(NULL),
+UX_STEP_VALID(ux_approve_pk_flow_2_step, pb, pk_approved(),
               {&C_icon_validate_14, "Approve"});
 
 UX_STEP_VALID(ux_approve_pk_flow_3_step, pb,
-              io_seproxyhal_touch_pk_cancel(NULL),
+              pk_rejected(),
               {&C_icon_crossmark, "Reject"});
 
 UX_DEF(ux_approve_pk_flow, &ux_approve_pk_flow_1_step,
@@ -162,7 +160,7 @@ static void callback_export(bool accept) {
 }
 
 static void ui_get_public_key_nbgl(void) {
-    nbgl_useCaseChoice(&C_icon_hedera_64x64, "Export Public Key?", gpk_ctx.ui_approve_l2, "Approve", "Reject", callback_export);
+    nbgl_useCaseChoice(&C_icon_hedera_64x64, "Export Public Key?", gpk_ctx.ui_approve_l2, "Allow", "Don't allow", callback_export);
 }
 
 

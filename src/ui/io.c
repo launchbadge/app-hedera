@@ -14,7 +14,7 @@ unsigned char G_io_seproxyhal_spi_buffer[ IO_SEPROXYHAL_BUFFER_SIZE_B ];
 
 #ifdef HAVE_BAGL
 void io_seproxyhal_display(const bagl_element_t *element) {
-    io_seproxyhal_display_default((bagl_element_t *)element);
+    io_seproxyhal_display_default(element);
 }
 #endif //HAVE_BAGL
 
