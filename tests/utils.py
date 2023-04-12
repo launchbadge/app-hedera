@@ -7,16 +7,25 @@ def _navigation_helper(navigator, device_name: str, accept: bool, snapshots_name
     if device_name.startswith("nano"):
         navigate_instruction = NavInsID.RIGHT_CLICK
         validation_instructions = [NavInsID.BOTH_CLICK]
-
-    if accept:
-        text = "Confirm"
-    else:
-        if device_name == "nanos":
-            text = "Deny"
+        if accept:
+            text = "Confirm"
         else:
-            text = "Reject"
-    navigator.navigate_until_text_and_compare(NavInsID.RIGHT_CLICK,
-                                              [NavInsID.BOTH_CLICK],
+            if device_name == "nanos":
+                text = "Deny"
+            else:
+                text = "Reject"
+    else:
+        navigate_instruction = NavInsID.USE_CASE_REVIEW_TAP
+        if accept:
+            validation_instructions = [NavInsID.USE_CASE_REVIEW_CONFIRM, NavInsID.USE_CASE_STATUS_DISMISS]
+            text = "Hold to sign"
+        else:
+            validation_instructions = [NavInsID.USE_CASE_REVIEW_REJECT, NavInsID.USE_CASE_CHOICE_CONFIRM, NavInsID.USE_CASE_STATUS_DISMISS]
+            text = "Reject message"
+
+
+    navigator.navigate_until_text_and_compare(navigate_instruction,
+                                              validation_instructions,
                                               text,
                                               ROOT_SCREENSHOT_PATH,
                                               snapshots_name)

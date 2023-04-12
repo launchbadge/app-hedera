@@ -1,5 +1,12 @@
 #include "get_public_key.h"
 #include "ui_common.h"
+#include "ux.h"
+#include "glyphs.h"
+
+#ifdef HAVE_NBGL
+#include "nbgl_use_case.h"
+#endif
+
 
 #if defined(TARGET_NANOS)
 
@@ -106,15 +113,13 @@ UX_DEF(ux_compare_pk_flow, &ux_compare_pk_flow_1_step);
 
 static void compare_pk() { ux_flow_init(0, ux_compare_pk_flow, NULL); }
 
-unsigned int io_seproxyhal_touch_pk_ok(const bagl_element_t *e) {
-    UNUSED(e);
+static unsigned int pk_approved() {
     io_exchange_with_code(EXCEPTION_OK, 32);
     compare_pk();
     return 0;
 }
 
-unsigned int io_seproxyhal_touch_pk_cancel(const bagl_element_t *e) {
-    UNUSED(e);
+static unsigned int pk_rejected() {
     io_exchange_with_code(EXCEPTION_USER_REJECTED, 0);
     ui_idle();
     return 0;
@@ -123,19 +128,48 @@ unsigned int io_seproxyhal_touch_pk_cancel(const bagl_element_t *e) {
 UX_STEP_NOCB(ux_approve_pk_flow_1_step, bn,
              {"Export Public", gpk_ctx.ui_approve_l2});
 
-UX_STEP_VALID(ux_approve_pk_flow_2_step, pb, io_seproxyhal_touch_pk_ok(NULL),
+UX_STEP_VALID(ux_approve_pk_flow_2_step, pb, pk_approved(),
               {&C_icon_validate_14, "Approve"});
 
 UX_STEP_VALID(ux_approve_pk_flow_3_step, pb,
-              io_seproxyhal_touch_pk_cancel(NULL),
+              pk_rejected(),
               {&C_icon_crossmark, "Reject"});
 
 UX_DEF(ux_approve_pk_flow, &ux_approve_pk_flow_1_step,
        &ux_approve_pk_flow_2_step, &ux_approve_pk_flow_3_step);
 
+#elif defined(HAVE_NBGL)
+
+
+static void callback_match(bool match) {
+    if (match) {
+        io_exchange_with_code(EXCEPTION_OK, 32);
+    } else {
+        io_exchange_with_code(EXCEPTION_USER_REJECTED, 0);
+    }
+    ui_idle();
+}
+
+static void callback_export(bool accept) {
+    if (accept) {
+        nbgl_useCaseAddressConfirmation((const char *) gpk_ctx.full_key, callback_match);
+    } else {
+        io_exchange_with_code(EXCEPTION_USER_REJECTED, 0);
+        ui_idle();
+    }
+}
+
+static void ui_get_public_key_nbgl(void) {
+    nbgl_useCaseChoice(&C_icon_hedera_64x64, "Export Public Key?", gpk_ctx.ui_approve_l2, "Allow", "Don't allow", callback_export);
+}
+
+
 #endif // TARGET
 
+// Common for all devices
+
 void ui_get_public_key(void) {
+
 #if defined(TARGET_NANOS)
 
     UX_DISPLAY(ui_get_public_key_approve, NULL);
@@ -144,5 +178,10 @@ void ui_get_public_key(void) {
 
     ux_flow_init(0, ux_approve_pk_flow, NULL);
 
+#elif defined(HAVE_NBGL)
+
+    ui_get_public_key_nbgl();
+
 #endif // #if TARGET_
+
 }

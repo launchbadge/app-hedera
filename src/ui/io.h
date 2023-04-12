@@ -4,6 +4,5 @@
 #include "globals.h"
 #include "os.h"
 #include "os_io_seproxyhal.h"
-#include "ux.h"
 
 extern void io_exchange_with_code(uint16_t code, uint16_t tx);

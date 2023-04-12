@@ -1,3 +1,4 @@
+#include "ux.h"
 #include "glyphs.h"
 #include "globals.h"
 #include "handlers.h"
@@ -13,6 +14,11 @@
 
 // Things are marked volatile throughout the app to prevent unintended compiler
 // reording of instructions (since the try-catch system is a macro)
+
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2) || defined(TARGET_STAX)
+ux_state_t G_ux;
+bolos_ux_params_t G_ux_params;
+#endif
 
 void app_main() {
     volatile unsigned int rx = 0;
@@ -128,7 +134,7 @@ __attribute__((section(".boot"))) int main() {
                 // the Ledger SDK
                 io_seproxyhal_init();
 
-#ifdef TARGET_NANOX
+#ifdef HAVE_BLE
                 // grab the current plane mode setting
                 G_io_app.plane_mode =
                     os_setting_get(OS_SETTING_PLANEMODE, NULL, 0);
@@ -136,7 +142,7 @@ __attribute__((section(".boot"))) int main() {
 
 #ifdef HAVE_BLE
                 BLE_power(0, NULL);
-                BLE_power(1, "Nano X");
+                BLE_power(1, NULL);
 #endif // HAVE_BLE
 
                 USB_power(0);
