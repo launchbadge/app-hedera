@@ -683,32 +683,36 @@ UX_DEF(ux_associate_flow, &summary_step, &operator_step, &senders_step,
 
 static void rejectChoice(void) {
     io_exchange_with_code(EXCEPTION_USER_REJECTED, 0);
-    nbgl_useCaseStatus("Message\nrejected", false, ui_idle);
+    nbgl_useCaseStatus("Transaction\nrejected", false, ui_idle);
 }
 
 static void rejectUseCaseChoice(void) {
-    nbgl_useCaseConfirm("Reject message?", NULL, "Yes, reject", "Go back to message", rejectChoice);
+    nbgl_useCaseConfirm("Reject transaction?", NULL, "Yes, reject", "Go back to transaction", rejectChoice);
 }
 
 static void review_final_callback(bool confirmed) {
     if (confirmed) {
         io_exchange_with_code(EXCEPTION_OK, 64);
-        nbgl_useCaseStatus("MESSAGE\nSIGNED", true, ui_idle);
+        nbgl_useCaseStatus("TRANSACTION\nSIGNED", true, ui_idle);
     } else {
         rejectUseCaseChoice();
     }
 }
 
-// Max is 8 infos for transfer transaction
+// Max is 7 infos for transfer transaction
 // If a new flow is added or flows are modified to include more steps, don't forget to update the infos array size!
-static nbgl_layoutTagValue_t infos[8];
+static nbgl_layoutTagValue_t infos[7];
 static nbgl_layoutTagValueList_t layout;
+static nbgl_pageInfoLongPress_t review_final_long_press;
+static char review_start_title[64];
+static char review_final_title[64];
 
-static void start_review(void) {
+static void create_transaction_flow(void) {
     uint8_t index = 0;
-    infos[index].item = "Transaction Summary";
     infos[index].value = st_ctx.summary_line_1;
-    ++index;
+    snprintf(review_start_title, sizeof(review_start_title), "Review transaction to\n%s", st_ctx.summary_line_1);
+    snprintf(review_final_title, sizeof(review_final_title), "Sign transaction to\n%s", st_ctx.summary_line_1);
+
     infos[index].item = "With key";
     infos[index].value = st_ctx.summary_line_2;
     ++index;
@@ -776,14 +780,15 @@ static void start_review(void) {
     layout.wrapping = true;
     layout.pairs = infos;
 
-    static const nbgl_pageInfoLongPress_t review_final_long_press = {
-        .text = "Sign message on\nHedera network?",
-        .icon = &C_icon_hedera_64x64,
-        .longPressText = "Hold to sign",
-        .longPressToken = 0,
-        .tuneId = TUNE_TAP_CASUAL,
-    };
-    nbgl_useCaseStaticReview(&layout, &review_final_long_press, "Reject message", review_final_callback);
+    review_final_long_press.text = review_final_title,
+    review_final_long_press.icon = &C_icon_hedera_64x64;
+    review_final_long_press.longPressText = "Hold to sign";
+    review_final_long_press.longPressToken = 0;
+    review_final_long_press.tuneId = TUNE_TAP_CASUAL;
+}
+
+static void start_review(void) {
+    nbgl_useCaseStaticReview(&layout, &review_final_long_press, "Reject transaction", review_final_callback);
 }
 
 
@@ -824,8 +829,10 @@ void ui_sign_transaction(void) {
 
 #elif defined(HAVE_NBGL)
 
+    create_transaction_flow();
+
     nbgl_useCaseReviewStart(&C_icon_hedera_64x64,
-                            "Review transaction to\nsign on Hedera\nnetwork",
+                            review_start_title,
                             "",
                             "Reject transaction",
                             start_review,

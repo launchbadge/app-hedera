@@ -111,7 +111,11 @@ void reformat_summary(const char *summary) {
 
 void reformat_summary_send_token(void) {
     hedera_safe_printf(
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2) || defined(TARGET_NANOS)
         st_ctx.summary_line_1, "Send %llu.%llu.%llu",
+#elif defined(TARGET_STAX)
+        st_ctx.summary_line_1, "Send Token %llu.%llu.%llu",
+#endif
         st_ctx.transaction.data.cryptoTransfer.tokenTransfers[ 0 ]
             .token.shardNum,
         st_ctx.transaction.data.cryptoTransfer.tokenTransfers[ 0 ]
