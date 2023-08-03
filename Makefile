@@ -103,6 +103,7 @@ endif
 
 ifeq ($(TARGET_NAME),TARGET_STAX)
     DEFINES += NBGL_QRCODE
+    SDK_SOURCE_PATH  += qrcode
 else
     DEFINES += HAVE_BAGL
     ifneq ($(TARGET_NAME),TARGET_NANOS)
