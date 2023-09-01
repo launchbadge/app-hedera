@@ -28,6 +28,7 @@ def test_hedera_get_public_key_ok(backend, firmware, navigator, test_name):
     ]
     for i, (index, key) in enumerate(values):
         from_public_key = hedera.get_public_key_non_confirm(index).data
+        backend.wait_for_home_screen()
         assert from_public_key.hex() == key
         with hedera.get_public_key_confirm(index):
             if firmware.device == "nanos":
