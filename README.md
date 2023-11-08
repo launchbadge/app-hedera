@@ -57,22 +57,48 @@ podman run -v $PWD:/app --platform linux/amd64 -it \
 
 ### Tests
 
+With the `ledger-app-dev-tools` image, whether you are developing on macOS, Windows or Linux, you can quickly test your app with the [Speculos](https://github.com/LedgerHQ/speculos) emulator or the [Ragger](https://github.com/LedgerHQ/ragger) test framework.
+For examples of functional tests implemented with Ragger, you can have a look at the [app-boilerplate](https://github.com/LedgerHQ/app-boilerplate)
+
+First, run the `ledger-app-dev-tools` docker image. Depending on your platform, the command will change slightly :
+
+**Linux (Ubuntu)**
+
+```bash
+sudo docker run --rm -ti -v "$(realpath .):/app" --user $(id -u):$(id -g) -v "/tmp/.X11-unix:/tmp/.X11-unix" -e DISPLAY=$DISPLAY ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools:latest
 ```
-# Install PDM and Python dependencies
-sudo apt-get install gcc python3 python3-venv python3-dev
-sudo apt-get update && sudo apt-get install qemu-user-static
-curl -sSL https://raw.githubusercontent.com/pdm-project/pdm/main/install-pdm.py | python3 -
 
-# Link and Copy dependencies
-ln -s $(pwd)/proto $(pwd)/tests/proto
-ln -s $(pwd)/vendor/nanopb/generator/proto/nanopb_pb2.py $(pwd)/tests/nanopb_pb2.py
-mkdir -p tests/elfs
-cp bin/app.elf tests/elfs/hedera_nanos.elf  # hedera_nanosp.elf, hedera_nanox.elf
+**Windows (with PowerShell)**
 
-# Run tests
-cd tests
-pdm use 3.8
-pdm install # Includes https://github.com/nipunn1313/mypy-protobuf here too
-pdm run pytest -v --tb=short --nanos --display
+Assuming you already have a running X server like [VcXsrv](https://sourceforge.net/projects/vcxsrv/) configured to accept client connections.
 
+```bash
+docker run --rm -ti -v "$(Get-Location):/app" -e DISPLAY="host.docker.internal:0" ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools:latest
+```
+
+**macOS**
+
+Assuming you already have a running X server like [XQuartz](https://www.xquartz.org/) configured to accept client connections.
+
+```bash
+sudo docker run --rm -ti -v "$(pwd -P):/app" --user $(id -u):$(id -g) -v "/tmp/.X11-unix:/tmp/.X11-unix" -e DISPLAY="host.docker.internal:0" ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools:latest
+```
+
+Then you can test your app either with the Speculos emulator :
+
+```bash
+# Run your app on Speculos
+bash$ speculos build/nanos/bin/app.elf --model nanos
+```
+
+Or you can run your Ragger functional tests if you have implemented them :
+
+```bash
+# Creating a virtualenv so that the non-root user can install Python dependencies
+bash$ python -m virtualenv venv --system-site-package
+bash$ source ./venv/bin/activate
+# Install tests dependencies
+(venv) bash$ pip install -r tests/requirements.txt
+# Run ragger functional tests
+(venv) bash$ python -m pytest tests/ --tb=short -v --device nanos --display
 ```
