@@ -57,6 +57,27 @@ podman run -v $PWD:/app --platform linux/amd64 -it \
 
 ### Tests
 
+
+### Ledger VS Code extension with macOS / Windows / Linux
+
+To test your app on macOS or Windows, it is recommended to use [Ledger's VS Code extension](https://github.com/LedgerHQ/app-boilerplate#with-vscode) to quickly setup a working test environment.  This extension can also 
+be used with Linux.
+
+You can use the following sequence of tasks and commands (all accessible in the **extension sidebar menu**) :
+
+* `Select build target`
+* `Build app`
+
+Then you can choose to execute the functional tests :
+
+* Use `Run tests`.
+
+Or simply run the app on the Speculos emulator :
+
+* `Run with Speculos`.
+
+### Alternatives
+
 With the `ledger-app-dev-tools` image, whether you are developing on macOS, Windows or Linux, you can quickly test your app with the [Speculos](https://github.com/LedgerHQ/speculos) emulator or the [Ragger](https://github.com/LedgerHQ/ragger) test framework.
 For examples of functional tests implemented with Ragger, you can have a look at the [app-boilerplate](https://github.com/LedgerHQ/app-boilerplate)
 
@@ -102,3 +123,4 @@ bash$ source ./venv/bin/activate
 # Run ragger functional tests
 (venv) bash$ python -m pytest tests/ --tb=short -v --device nanos --display
 ```
+
