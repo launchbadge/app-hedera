@@ -1,6 +1,11 @@
 #include "utils.h"
+#include "globals.h"
 
 void public_key_to_bytes(unsigned char *dst, cx_ecfp_public_key_t *public) {
+    if (dst == NULL || public == NULL) {
+        THROW(EXCEPTION_MALFORMED_APDU);
+    }
+    
     for (int i = 0; i < 32; i++) {
         dst[ i ] = public->W[ 64 - i ];
     }

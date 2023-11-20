@@ -6,6 +6,10 @@ static void get_pk() {
     // Derive Key
     hedera_derive_keypair(gpk_ctx.key_index, NULL, &gpk_ctx.public);
 
+    if (sizeof(G_io_apdu_buffer) < 32) {
+        THROW(EXCEPTION_INTERNAL);
+    }
+
     // Put Key bytes in APDU buffer
     public_key_to_bytes(G_io_apdu_buffer, &gpk_ctx.public);
 
@@ -21,6 +25,10 @@ void handle_get_public_key(uint8_t p1, uint8_t p2, uint8_t* buffer,
     UNUSED(p2);
     UNUSED(len);
     UNUSED(tx);
+
+    if (buffer == NULL) {
+        THROW(EXCEPTION_INTERNAL);
+    }
 
     // Read Key Index
     gpk_ctx.key_index = U4LE(buffer, 0);

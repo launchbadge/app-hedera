@@ -718,7 +718,8 @@ static void create_transaction_flow(void) {
     ++index;
 
     switch (st_ctx.type) {
-        case Verify:
+        case Verify: 
+            // FALLTHROUGH
         case Associate:
             infos[index].item = st_ctx.senders_title;
             infos[index].value = st_ctx.senders;
@@ -738,7 +739,8 @@ static void create_transaction_flow(void) {
             infos[index].value = st_ctx.memo;
             ++index;
             break;
-        case TokenTransfer:
+        case TokenTransfer: 
+            // FALLTHROUGH
         case Transfer:
             infos[index].item = "Operator";
             infos[index].value = st_ctx.operator;
@@ -759,7 +761,8 @@ static void create_transaction_flow(void) {
             infos[index].value = st_ctx.memo;
             ++index;
             break;
-        case TokenMint:
+        case TokenMint: 
+            // FALLTHROUGH
         case TokenBurn:
             infos[index].item = st_ctx.senders_title;
             infos[index].value = st_ctx.senders;
@@ -805,20 +808,25 @@ void ui_sign_transaction(void) {
 #elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
 
     switch (st_ctx.type) {
-        case Associate:
+        case Associate: 
+            // FALLTHROUGH
         case Dissociate:
             ux_flow_init(0, ux_associate_flow, NULL);
             break;
         case Verify:
             ux_flow_init(0, ux_verify_flow, NULL);
             break;
-        case Create:
-        case Update:
-        case TokenTransfer:
+        case Create: 
+            // FALLTHROUGH
+        case Update: 
+            // FALLTHROUGH
+        case TokenTransfer: 
+            // FALLTHROUGH
         case Transfer:
             ux_flow_init(0, ux_transfer_flow, NULL);
             break;
-        case TokenMint:
+        case TokenMint: 
+            // FALLTHROUGH
         case TokenBurn:
             ux_flow_init(0, ux_burn_mint_flow, NULL);
             break;

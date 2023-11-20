@@ -10,15 +10,15 @@
 bool hedera_derive_keypair(uint32_t index,
                            /* out */ cx_ecfp_private_key_t* secret,
                            /* out */ cx_ecfp_public_key_t* public) {
-    static uint8_t seed[ 32 ];
-    static uint32_t path[ 5 ];
+    static uint8_t seed[ SEED_SIZE ];
+    static uint32_t path[ PATH_SIZE ];
     static cx_ecfp_private_key_t pk;
 
-    path[ 0 ] = 44 | 0x80000000;
-    path[ 1 ] = 3030 | 0x80000000;
-    path[ 2 ] = 0x80000000;
-    path[ 3 ] = 0x80000000;
-    path[ 4 ] = index | 0x80000000;
+    path[ 0 ] = PATH_ZERO;
+    path[ 1 ] = PATH_ONE;
+    path[ 2 ] = PATH_TWO;
+    path[ 3 ] = PATH_THREE;
+    path[ 4 ] = PATH_FOUR;
 
     os_perso_derive_node_bip32_seed_key(HDW_ED25519_SLIP10, CX_CURVE_Ed25519,
                                         path, 5, seed, NULL, NULL, 0);

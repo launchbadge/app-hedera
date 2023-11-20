@@ -15,6 +15,10 @@ void handle_get_app_configuration(
     UNUSED(flags);
     UNUSED(tx);
 
+    if (sizeof(G_io_apdu_buffer) < 4) {
+        THROW(EXCEPTION_INTERNAL);
+    }
+
     // storage allowed?
     G_io_apdu_buffer[ 0 ] = 0;
 
