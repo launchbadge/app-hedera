@@ -14,8 +14,6 @@
 
 #define HBAR 100000000 // tinybar
 #define HBAR_BUF_SIZE 26
-#define SEED_SIZE 32
-#define PATH_SIZE 5
 
 #define PATH_ZERO 44 | 0x80000000
 #define PATH_ONE 3030 | 0x80000000
