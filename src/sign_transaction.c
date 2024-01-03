@@ -250,7 +250,11 @@ void handle_sign_transaction(uint8_t p1, uint8_t p2, uint8_t* buffer,
     int raw_transaction_length = len - 4;
 
     // Oops Oof Owie
-    if (raw_transaction_length > MAX_TX_SIZE) {
+    if (
+        raw_transaction_length > MAX_TX_SIZE || 
+        raw_transaction_length > (int) buffer - 4 ||
+        buffer == NULL
+        ) {
         THROW(EXCEPTION_MALFORMED_APDU);
     }
 
@@ -258,10 +262,9 @@ void handle_sign_transaction(uint8_t p1, uint8_t p2, uint8_t* buffer,
     memmove(raw_transaction, (buffer + 4), raw_transaction_length);
 
     // Sign Transaction
-    // TODO: handle error return here (internal error?!)
     if (!hedera_sign(st_ctx.key_index, raw_transaction, raw_transaction_length,
                      G_io_apdu_buffer)) {
-        THROW(EXCEPTION_INTERNAL);
+        THROW(EXCEPTION_MALFORMED_APDU);
     }
 
     // Make in memory buffer into stream

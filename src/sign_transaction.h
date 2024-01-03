@@ -43,8 +43,6 @@ enum TransactionType {
 
 /*
  * Supported Transactions:
- * // TODO: Refactor this into a generic dispatch
- *
  * Verify:
  * "Verify Account with Key #0?" (Summary) <--> "Account" (Senders) <--> Confirm
  * <--> Deny

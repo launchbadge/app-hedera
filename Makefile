@@ -25,11 +25,7 @@ include $(BOLOS_SDK)/Makefile.defines
 #########
 
 APP_LOAD_PARAMS = --curve ed25519
-ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_NANOX TARGET_STAX))
-APP_LOAD_PARAMS += --appFlags 0x240  # APPLICATION_FLAG_BOLOS_SETTINGS
-else
-APP_LOAD_PARAMS += --appFlags 0x040
-endif
+APP_LOAD_PARAMS += --appFlags 0x200  # APPLICATION_FLAG_BOLOS_SETTINGS
 APP_LOAD_PARAMS += --path "44'/3030'"
 APP_LOAD_PARAMS += $(COMMON_LOAD_PARAMS)
 
@@ -87,7 +83,6 @@ DEFINES   += BLE_SEGMENT_SIZE=32 #max MTU, min 20
 
 DEFINES   += HAVE_WEBUSB WEBUSB_URL_SIZE_B=0 WEBUSB_URL=""
 
-DEFINES   += UNUSED\(x\)=\(void\)x
 DEFINES   += APPVERSION=\"$(APPVERSION)\"
 
 
@@ -171,6 +166,9 @@ endif
 ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_NANOX TARGET_STAX))
 SDK_SOURCE_PATH  += lib_blewbxx lib_blewbxx_impl
 endif
+
+# Allow usage of function from lib_standard_app/crypto_helpers.c
+APP_SOURCE_FILES += ${BOLOS_SDK}/lib_standard_app/crypto_helpers.c
 
 include vendor/nanopb/extra/nanopb.mk
 
