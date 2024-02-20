@@ -242,9 +242,6 @@ void handle_sign_transaction(uint8_t p1, uint8_t p2, uint8_t* buffer,
     UNUSED(p2);
     UNUSED(tx);
 
-    // Key Index
-    st_ctx.key_index = U4LE(buffer, 0);
-
     // Raw Tx
     uint8_t raw_transaction[ MAX_TX_SIZE ];
     int raw_transaction_length = len - 4;
@@ -257,6 +254,9 @@ void handle_sign_transaction(uint8_t p1, uint8_t p2, uint8_t* buffer,
         ) {
         THROW(EXCEPTION_MALFORMED_APDU);
     }
+
+    // Key Index
+    st_ctx.key_index = U4LE(buffer, 0);
 
     // copy raw transaction
     memmove(raw_transaction, (buffer + 4), raw_transaction_length);

@@ -30,7 +30,7 @@ void handle_get_public_key(uint8_t p1, uint8_t p2, uint8_t* buffer,
     UNUSED(len);
     UNUSED(tx);
 
-    if (buffer == NULL) {
+    if (buffer == NULL || len < sizeof(uint32_t)) {
         THROW(EXCEPTION_INTERNAL);
     }
 
