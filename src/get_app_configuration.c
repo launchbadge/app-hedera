@@ -23,9 +23,9 @@ void handle_get_app_configuration(
     G_io_apdu_buffer[ 0 ] = 0;
 
     // version
-    G_io_apdu_buffer[ 1 ] = APPVERSION_M;
-    G_io_apdu_buffer[ 2 ] = APPVERSION_N;
-    G_io_apdu_buffer[ 3 ] = APPVERSION_P;
+    G_io_apdu_buffer[ 1 ] = MAJOR_VERSION;
+    G_io_apdu_buffer[ 2 ] = MINOR_VERSION;
+    G_io_apdu_buffer[ 3 ] = PATCH_VERSION;
 
     io_exchange_with_code(EXCEPTION_OK, 4);
 }

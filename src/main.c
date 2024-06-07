@@ -1,8 +1,9 @@
-#include "ux.h"
-#include "glyphs.h"
 #include "globals.h"
+#include "glyphs.h"
 #include "handlers.h"
+#include "os.h"
 #include "ui_common.h"
+#include "ux.h"
 
 // This is the main loop that reads and writes APDUs. It receives request
 // APDUs from the computer, looks up the corresponding command handler, and
@@ -15,7 +16,8 @@
 // Things are marked volatile throughout the app to prevent unintended compiler
 // reording of instructions (since the try-catch system is a macro)
 
-#if defined(TARGET_NANOX) || defined(TARGET_NANOS2) || defined(TARGET_STAX)
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2) || defined(TARGET_STAX) || \
+    defined(TARGET_FLEX)
 ux_state_t G_ux;
 bolos_ux_params_t G_ux_params;
 #endif
@@ -148,6 +150,7 @@ __attribute__((section(".boot"))) int main() {
                 USB_power(0);
                 USB_power(1);
 
+                PRINTF("TEST 1\n");
                 // Shows the main menu
                 ui_idle();
 

@@ -1,7 +1,7 @@
-#include "ux.h"
 #include "glyphs.h"
-#include "utils.h"
 #include "ui_common.h"
+#include "utils.h"
+#include "ux.h"
 
 #ifdef HAVE_NBGL
 #include "nbgl_page.h"
@@ -93,49 +93,28 @@ UX_STEP_VALID(ux_idle_flow_3_step, pb, os_sched_exit(-1),
 UX_DEF(ux_idle_flow, &ux_idle_flow_1_step, &ux_idle_flow_2_step,
        &ux_idle_flow_3_step);
 
+#elif defined(TARGET_STAX) || defined(TARGET_FLEX)
 
-#elif defined(TARGET_STAX)
+#define SETTING_INFO_NB 2
+static const char* const info_types[ SETTING_INFO_NB ] = {"Version",
+                                                          "Developer"};
+static const char* const info_contents[ SETTING_INFO_NB ] = {APPVERSION,
+                                                             "(c) 2024 Ledger"};
 
+static const nbgl_contentInfoList_t infoList = {
+    .nbInfos = SETTING_INFO_NB,
+    .infoTypes = info_types,
+    .infoContents = info_contents,
+};
 
-static const char* const infoTypes[] = {"Version", "Hedera"};
-static const char* const infoContents[] = {APPVERSION, "(c) 2022 Ledger"};
-
-static void ui_idle_nbgl(void);
-
-static bool ui_menu_about_nav_callback(uint8_t page, nbgl_pageContent_t* content) {
-    UNUSED(page);
-    content->type = INFOS_LIST;
-    content->infosList.nbInfos = ARRAY_COUNT(infoTypes);
-    content->infosList.infoTypes = (const char**) infoTypes;
-    content->infosList.infoContents = (const char**) infoContents;
-    return true;
-}
-
-static void ui_menu_about(void) {
-    nbgl_useCaseSettings("Hedera Stax Application",
-                         0,
-                         1,
-                         false,
-                         ui_idle_nbgl,
-                         ui_menu_about_nav_callback,
-                         NULL);
-}
-
-static void quit_app_callback(void) {
-    os_sched_exit(-1);
-}
+static void quit_app_callback(void) { os_sched_exit(-1); }
 
 static void ui_idle_nbgl(void) {
-    nbgl_useCaseHome("Hedera",
-                     &C_icon_hedera_64x64,
-                     NULL,
-                     false,
-                     ui_menu_about,
-                     quit_app_callback);
+    nbgl_useCaseHomeAndSettings(APPNAME, &C_icon_hedera_64x64, NULL,
+                                INIT_HOME_PAGE, NULL, &infoList, NULL,
+                                quit_app_callback);
 }
-
 #endif
-
 
 // Common for all devices
 
@@ -151,7 +130,7 @@ void ui_idle(void) {
     }
     ux_flow_init(0, ux_idle_flow, NULL);
 
-#elif defined (TARGET_STAX)
+#elif defined(TARGET_STAX) || defined(TARGET_FLEX)
 
     ui_idle_nbgl();
 
