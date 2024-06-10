@@ -132,8 +132,7 @@ static void set_title(const char *title) {
 static void set_senders_title(const char *title) {
 #if defined(TARGET_NANOS)
     set_title(title);
-#elif defined(TARGET_NANOX) || defined(TARGET_NANOS2) || \
-    defined(TARGET_STAX) || defined(TARGET_FLEX)
+#else
     // st_ctx.senders_title --> st_ctx.title (NANOS)
     hedera_safe_printf(st_ctx.senders_title, "%s", title);
 #endif
@@ -142,8 +141,7 @@ static void set_senders_title(const char *title) {
 static void set_recipients_title(const char *title) {
 #if defined(TARGET_NANOS)
     set_title(title);
-#elif defined(TARGET_NANOX) || defined(TARGET_NANOS2) || \
-    defined(TARGET_STAX) || defined(TARGET_FLEX)
+#else
     // st_ctx.recipients_title --> st_ctx.title (NANOS)
     hedera_safe_printf(st_ctx.recipients_title, "%s", title);
 #endif
@@ -152,8 +150,7 @@ static void set_recipients_title(const char *title) {
 static void set_amount_title(const char *title) {
 #if defined(TARGET_NANOS)
     set_title(title);
-#elif defined(TARGET_NANOX) || defined(TARGET_NANOS2) || \
-    defined(TARGET_STAX) || defined(TARGET_FLEX)
+#else
     // st_ctx.senders_title --> st_ctx.title (NANOS)
     hedera_safe_printf(st_ctx.amount_title, "%s", title);
 #endif

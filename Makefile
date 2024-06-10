@@ -85,37 +85,24 @@ ifeq ($(TARGET_NAME),TARGET_NANOS)
 DISABLE_STANDARD_BAGL_UX_FLOW = 1
 endif
 
-# vendor/ledger-nanopb
-DEFINES  += PB_FIELD_32BIT=1
-
 # vendor/printf
 DEFINES   += PRINTF_DISABLE_SUPPORT_FLOAT PRINTF_DISABLE_SUPPORT_EXPONENTIAL PRINTF_DISABLE_SUPPORT_PTRDIFF_T
 DEFINES   += PRINTF_FTOA_BUFFER_SIZE=0
-# endif
 
 # U2F
 DEFINES   += HAVE_U2F HAVE_IO_U2F
 DEFINES   += U2F_PROXY_MAGIC=\"BOIL\"
 
-# nanopb
-CFLAGS   += -Og -Iproto
-CFLAGS   += -I.
-
-# printf
-# CFLAGS   += -Ivendor/printf/
-
-# enable color from inside a script
-CFLAGS   += -fcolor-diagnostics
-LDFLAGS  += -Og -flto=thin
-
 # Allow usage of function from lib_standard_app/crypto_helpers.c
 APP_SOURCE_FILES += ${BOLOS_SDK}/lib_standard_app/crypto_helpers.c
+
+# Additional include paths
+INCLUDES_PATH += ${BOLOS_SDK}/lib_standard_app $(NANOPB_DIR) .
 
 include vendor/nanopb/extra/nanopb.mk
 
 DEFINES   += PB_NO_ERRMSG=1
 SOURCE_FILES += $(NANOPB_CORE)
-CFLAGS += "-I$(NANOPB_DIR)"
 
 PB_FILES = $(wildcard proto/*.proto)
 C_PB_FILES = $(patsubst %.proto,%.pb.c,$(PB_FILES))
@@ -130,8 +117,6 @@ $(C_PB_FILES): %.pb.c: $(PB_FILES)
 $(PYTHON_PB_FILES): %_pb2.py: $(PB_FILES)
 	$(PROTOC) $(PROTOC_OPTS) --python_out=. $*.proto
 
-
-
 .PHONY: c_pb python_pb clean_python_pb
 c_pb: $(C_PB_FILES)
 python_pb: $(PYTHON_PB_FILES)
@@ -142,9 +127,6 @@ clean_python_pb:
 .SILENT : cleanall
 cleanall : clean
 	-@rm -rf proto/*.pb.c proto/*.pb.h
-
-#add dependency on custom makefile filename
-dep/%.d: %.c Makefile
 
 check:
 	@ clang-tidy \

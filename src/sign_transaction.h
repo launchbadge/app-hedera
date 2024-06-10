@@ -11,7 +11,7 @@
 #include "handlers.h"
 #include "hedera.h"
 #include "hedera_format.h"
-#include "io.h"
+#include "app_io.h"
 #include "transaction_body.pb.h"
 #include "ui_common.h"
 #include "utils.h"
@@ -101,8 +101,7 @@ typedef struct sign_tx_context_s {
         char recipients_title[TITLE_SIZE]; // alias for title
         char amount_title[TITLE_SIZE];     // alias for title
     };
-#elif defined(TARGET_NANOX) || defined(TARGET_NANOS2) || \
-    defined(TARGET_STAX) || defined(TARGET_FLEX)
+#else
     char senders_title[DISPLAY_SIZE + 1];
     char recipients_title[DISPLAY_SIZE + 1];
     char amount_title[DISPLAY_SIZE + 1];
@@ -134,8 +133,7 @@ typedef struct sign_tx_context_s {
 #if defined(TARGET_NANOS)
     uint8_t display_index; // 1 -> Number Screens
     uint8_t display_count; // Number Screens
-#elif defined(TARGET_NANOX) || defined(TARGET_NANOS2) || \
-    defined(TARGET_STAX) || defined(TARGET_FLEX)
+#else
     // Transaction Operator
     char operator[DISPLAY_SIZE * 2 + 1];
 

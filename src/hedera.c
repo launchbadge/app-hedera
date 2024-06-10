@@ -4,8 +4,7 @@
 #include <os.h>
 #include <string.h>
 
-#include "globals.h"
-#include "lib_standard_app/crypto_helpers.h"
+#include "crypto_helpers.h"
 #include "utils.h"
 
 static void hedera_set_path(uint32_t index, uint32_t path[static 5]) {
@@ -16,7 +15,7 @@ static void hedera_set_path(uint32_t index, uint32_t path[static 5]) {
     path[4] = PATH_FOUR;
 }
 
-bool hedera_get_pubkey(uint32_t index, uint8_t raw_pubkey[static 65]) {
+bool hedera_get_pubkey(uint32_t index, uint8_t raw_pubkey[static RAW_PUBKEY_SIZE]) {
     static uint32_t path[5];
 
     hedera_set_path(index, path);
