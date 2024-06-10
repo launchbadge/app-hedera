@@ -17,7 +17,7 @@ static bool get_pk() {
 
     // Populate Key Hex String
     bin2hex(gpk_ctx.full_key, G_io_apdu_buffer, KEY_SIZE);
-    gpk_ctx.full_key[ KEY_SIZE ] = '\0';
+    gpk_ctx.full_key[KEY_SIZE] = '\0';
 
     return true;
 }

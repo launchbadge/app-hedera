@@ -11,7 +11,7 @@
 // source, which you can find in the sdk repo for your device.
 // Fortunately, we are not meant to understand this.
 
-unsigned char G_io_seproxyhal_spi_buffer[ IO_SEPROXYHAL_BUFFER_SIZE_B ];
+unsigned char G_io_seproxyhal_spi_buffer[IO_SEPROXYHAL_BUFFER_SIZE_B];
 
 #ifdef HAVE_BAGL
 void io_seproxyhal_display(const bagl_element_t *element) {
@@ -25,7 +25,7 @@ uint8_t io_event(uint8_t channel) {
     // Ledger docs recommend checking the canary on each io_event
     debug_check_stack_canary();
 
-    switch (G_io_seproxyhal_spi_buffer[ 0 ]) {
+    switch (G_io_seproxyhal_spi_buffer[0]) {
         case SEPROXYHAL_TAG_BUTTON_PUSH_EVENT:
 #ifdef HAVE_BAGL
             UX_BUTTON_PUSH_EVENT(G_io_seproxyhal_spi_buffer);
@@ -96,8 +96,8 @@ unsigned short io_exchange_al(unsigned char channel, unsigned short tx_len) {
 }
 
 void io_exchange_with_code(uint16_t code, uint16_t tx) {
-    G_io_apdu_buffer[ tx++ ] = code >> 8;
-    G_io_apdu_buffer[ tx++ ] = code & 0xff;
+    G_io_apdu_buffer[tx++] = code >> 8;
+    G_io_apdu_buffer[tx++] = code & 0xff;
 
     io_exchange(CHANNEL_APDU | IO_RETURN_AFTER_TX, tx);
 }

@@ -704,76 +704,76 @@ static void review_choice(bool confirm) {
 // Max is 7 infos for transfer transaction
 // If a new flow is added or flows are modified to include more steps, don't
 // forget to update the infos array size!
-static nbgl_contentTagValue_t infos[ 7 ];
+static nbgl_contentTagValue_t infos[7];
 // Content of the review flow
 static nbgl_contentTagValueList_t content;
-static char review_start_title[ 64 ];
-static char review_final_title[ 64 ];
+static char review_start_title[64];
+static char review_final_title[64];
 
 static void create_transaction_flow(void) {
     uint8_t index = 0;
-    infos[ index ].value = st_ctx.summary_line_1;
+    infos[index].value = st_ctx.summary_line_1;
     snprintf(review_start_title, sizeof(review_start_title),
              "Review transaction to\n%s", st_ctx.summary_line_1);
     snprintf(review_final_title, sizeof(review_final_title),
              "Sign transaction to\n%s", st_ctx.summary_line_1);
 
-    infos[ index ].item = "With key";
-    infos[ index ].value = st_ctx.summary_line_2;
+    infos[index].item = "With key";
+    infos[index].value = st_ctx.summary_line_2;
     ++index;
 
     switch (st_ctx.type) {
         case Verify:
             // FALLTHROUGH
         case Associate:
-            infos[ index ].item = st_ctx.senders_title;
-            infos[ index ].value = st_ctx.senders;
+            infos[index].item = st_ctx.senders_title;
+            infos[index].value = st_ctx.senders;
             ++index;
             break;
         case Create:
-            infos[ index ].item = "Operator";
-            infos[ index ].value = st_ctx.operator;
+            infos[index].item = "Operator";
+            infos[index].value = st_ctx.operator;
             ++index;
-            infos[ index ].item = st_ctx.amount_title;
-            infos[ index ].value = st_ctx.amount;
+            infos[index].item = st_ctx.amount_title;
+            infos[index].value = st_ctx.amount;
             ++index;
-            infos[ index ].item = "Max Fee";
-            infos[ index ].value = st_ctx.fee;
+            infos[index].item = "Max Fee";
+            infos[index].value = st_ctx.fee;
             ++index;
-            infos[ index ].item = "Memo";
-            infos[ index ].value = st_ctx.memo;
+            infos[index].item = "Memo";
+            infos[index].value = st_ctx.memo;
             ++index;
             break;
         case TokenTransfer:
             // FALLTHROUGH
         case Transfer:
-            infos[ index ].item = "Operator";
-            infos[ index ].value = st_ctx.operator;
+            infos[index].item = "Operator";
+            infos[index].value = st_ctx.operator;
             ++index;
-            infos[ index ].item = st_ctx.senders_title;
-            infos[ index ].value = st_ctx.senders;
+            infos[index].item = st_ctx.senders_title;
+            infos[index].value = st_ctx.senders;
             ++index;
-            infos[ index ].item = "Recipient";
-            infos[ index ].value = st_ctx.recipients;
+            infos[index].item = "Recipient";
+            infos[index].value = st_ctx.recipients;
             ++index;
-            infos[ index ].item = st_ctx.amount_title;
-            infos[ index ].value = st_ctx.amount;
+            infos[index].item = st_ctx.amount_title;
+            infos[index].value = st_ctx.amount;
             ++index;
-            infos[ index ].item = "Max Fee";
-            infos[ index ].value = st_ctx.fee;
+            infos[index].item = "Max Fee";
+            infos[index].value = st_ctx.fee;
             ++index;
-            infos[ index ].item = "Memo";
-            infos[ index ].value = st_ctx.memo;
+            infos[index].item = "Memo";
+            infos[index].value = st_ctx.memo;
             ++index;
             break;
         case TokenMint:
             // FALLTHROUGH
         case TokenBurn:
-            infos[ index ].item = st_ctx.senders_title;
-            infos[ index ].value = st_ctx.senders;
+            infos[index].item = st_ctx.senders_title;
+            infos[index].value = st_ctx.senders;
             ++index;
-            infos[ index ].item = st_ctx.amount_title;
-            infos[ index ].value = st_ctx.amount;
+            infos[index].item = st_ctx.amount_title;
+            infos[index].value = st_ctx.amount;
             ++index;
             break;
         default:

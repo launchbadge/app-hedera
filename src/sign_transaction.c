@@ -25,7 +25,7 @@ static void validate_transfer(void) {
     }
 
     if (st_ctx.transaction.data.cryptoTransfer.tokenTransfers_count == 1) {
-        if (st_ctx.transaction.data.cryptoTransfer.tokenTransfers[ 0 ]
+        if (st_ctx.transaction.data.cryptoTransfer.tokenTransfers[0]
                 .transfers_count != 2) {
             // More than two accounts in a token transfer
             THROW(EXCEPTION_MALFORMED_APDU);
@@ -43,7 +43,7 @@ static void validate_transfer(void) {
 static bool is_verify_account(void) {
     // Only 1 Account (Sender), Fee 1 Tinybar, and Value 0 Tinybar
     return (
-        st_ctx.transaction.data.cryptoTransfer.transfers.accountAmounts[ 0 ]
+        st_ctx.transaction.data.cryptoTransfer.transfers.accountAmounts[0]
                 .amount == 0 &&
         st_ctx.transaction.data.cryptoTransfer.transfers.accountAmounts_count ==
             1 &&
@@ -186,7 +186,7 @@ void handle_transaction_body() {
                 st_ctx.transfer_from_index = 0;
                 st_ctx.transfer_to_index = 1;
                 if (st_ctx.transaction.data.cryptoTransfer.transfers
-                        .accountAmounts[ 0 ]
+                        .accountAmounts[0]
                         .amount > 0) {
                     st_ctx.transfer_from_index = 1;
                     st_ctx.transfer_to_index = 0;
@@ -206,8 +206,8 @@ void handle_transaction_body() {
                 // Determine Sender based on amount
                 st_ctx.transfer_from_index = 0;
                 st_ctx.transfer_to_index = 1;
-                if (st_ctx.transaction.data.cryptoTransfer.tokenTransfers[ 0 ]
-                        .transfers[ 0 ]
+                if (st_ctx.transaction.data.cryptoTransfer.tokenTransfers[0]
+                        .transfers[0]
                         .amount > 0) {
                     st_ctx.transfer_from_index = 1;
                     st_ctx.transfer_to_index = 0;
@@ -255,7 +255,7 @@ void handle_sign_transaction(uint8_t p1, uint8_t p2, uint8_t* buffer,
     UNUSED(tx);
 
     // Raw Tx
-    uint8_t raw_transaction[ MAX_TX_SIZE ];
+    uint8_t raw_transaction[MAX_TX_SIZE];
     int raw_transaction_length = len - 4;
 
     // Oops Oof Owie

@@ -20,12 +20,12 @@ void handle_get_app_configuration(
     }
 
     // storage allowed?
-    G_io_apdu_buffer[ 0 ] = 0;
+    G_io_apdu_buffer[0] = 0;
 
     // version
-    G_io_apdu_buffer[ 1 ] = MAJOR_VERSION;
-    G_io_apdu_buffer[ 2 ] = MINOR_VERSION;
-    G_io_apdu_buffer[ 3 ] = PATCH_VERSION;
+    G_io_apdu_buffer[1] = MAJOR_VERSION;
+    G_io_apdu_buffer[2] = MINOR_VERSION;
+    G_io_apdu_buffer[3] = PATCH_VERSION;
 
     io_exchange_with_code(EXCEPTION_OK, 4);
 }

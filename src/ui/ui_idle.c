@@ -18,33 +18,33 @@ ux_state_t ux;
 unsigned int ux_step;
 unsigned int ux_step_count;
 
-static const ux_menu_entry_t menu_main[ 4 ];
+static const ux_menu_entry_t menu_main[4];
 
-static const ux_menu_entry_t menu_about[ 3 ] = {{
-                                                    .menu = NULL,
-                                                    .callback = NULL,
-                                                    .userid = 0,
-                                                    .icon = NULL,
-                                                    .line1 = "Version",
-                                                    .line2 = APPVERSION,
-                                                    .text_x = 0,
-                                                    .icon_x = 0,
-                                                },
+static const ux_menu_entry_t menu_about[3] = {{
+                                                  .menu = NULL,
+                                                  .callback = NULL,
+                                                  .userid = 0,
+                                                  .icon = NULL,
+                                                  .line1 = "Version",
+                                                  .line2 = APPVERSION,
+                                                  .text_x = 0,
+                                                  .icon_x = 0,
+                                              },
 
-                                                {
-                                                    .menu = menu_main,
-                                                    .callback = NULL,
-                                                    .userid = 0,
-                                                    .icon = &C_icon_back,
-                                                    .line1 = "Back",
-                                                    .line2 = NULL,
-                                                    .text_x = 61,
-                                                    .icon_x = 40,
-                                                },
+                                              {
+                                                  .menu = menu_main,
+                                                  .callback = NULL,
+                                                  .userid = 0,
+                                                  .icon = &C_icon_back,
+                                                  .line1 = "Back",
+                                                  .line2 = NULL,
+                                                  .text_x = 61,
+                                                  .icon_x = 40,
+                                              },
 
-                                                UX_MENU_END};
+                                              UX_MENU_END};
 
-static const ux_menu_entry_t menu_main[ 4 ] = {
+static const ux_menu_entry_t menu_main[4] = {
     {.menu = NULL,
      .callback = NULL,
      .userid = 0,
@@ -96,10 +96,9 @@ UX_DEF(ux_idle_flow, &ux_idle_flow_1_step, &ux_idle_flow_2_step,
 #elif defined(TARGET_STAX) || defined(TARGET_FLEX)
 
 #define SETTING_INFO_NB 2
-static const char* const info_types[ SETTING_INFO_NB ] = {"Version",
-                                                          "Developer"};
-static const char* const info_contents[ SETTING_INFO_NB ] = {APPVERSION,
-                                                             "(c) 2024 Ledger"};
+static const char* const info_types[SETTING_INFO_NB] = {"Version", "Developer"};
+static const char* const info_contents[SETTING_INFO_NB] = {APPVERSION,
+                                                           "(c) 2024 Ledger"};
 
 static const nbgl_contentInfoList_t infoList = {
     .nbInfos = SETTING_INFO_NB,

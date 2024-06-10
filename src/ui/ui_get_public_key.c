@@ -73,7 +73,7 @@ static const bagl_element_t* ui_prepro_get_public_key_compare(
 static void compare_pk() {
     // init partial key str from full str
     memmove(gpk_ctx.partial_key, gpk_ctx.full_key, DISPLAY_SIZE);
-    gpk_ctx.partial_key[ DISPLAY_SIZE ] = '\0';
+    gpk_ctx.partial_key[DISPLAY_SIZE] = '\0';
 
     // init display index
     gpk_ctx.display_index = 0;
